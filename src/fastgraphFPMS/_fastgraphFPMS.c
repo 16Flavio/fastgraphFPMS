@@ -128,29 +128,26 @@ static PyObject *
 Graph_display(Graph *self, PyObject *Py_UNUSED(ignored))
 {
     if (self->rows == 0 || self->cols == 0 || self->data == NULL) {
-        return PyUnicode_FromString("[]");
+        PySys_WriteStdout("[]\n");
+        Py_RETURN_NONE;
     }
-
-    /* Construire une liste Python (copie) et utiliser repr dessus -> string */
-    PyObject *outer = PyList_New(self->rows);
-    if (!outer) return NULL;
 
     for (Py_ssize_t i = 0; i < self->rows; ++i) {
-        PyObject *inner = PyList_New(self->cols);
-        if (!inner) { Py_DECREF(outer); return NULL; }
+        PySys_WriteStdout("[");
         for (Py_ssize_t j = 0; j < self->cols; ++j) {
             long v = self->data[i * self->cols + j];
-            PyObject *pyv = PyLong_FromLong(v);
-            if (!pyv) { Py_DECREF(inner); Py_DECREF(outer); return NULL; }
-            /* PyList_SetItem *vole* la référence */
-            PyList_SetItem(inner, j, pyv);
+            if (j + 1 < self->cols) {
+                /* element + comma+space */
+                PySys_WriteStdout("%ld, ", v);
+            } else {
+                /* last element */
+                PySys_WriteStdout("%ld", v);
+            }
         }
-        PyList_SetItem(outer, i, inner); /* vole inner */
+        PySys_WriteStdout("]\n");
     }
 
-    PyObject *repr = PyObject_Repr(outer); /* nouveau ref */
-    Py_DECREF(outer);
-    return repr; /* chaîne (PyUnicode) */
+    Py_RETURN_NONE;
 }
 
 /* --- __repr__ pour l'objet Graph --- */
@@ -187,7 +184,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef mylibmodule = {
+static struct PyModuleDef fastgraph_module = {
     PyModuleDef_HEAD_INIT,
     "_fastgraphFPMS",
     "Minimal module providing Graph type implemented in C.",
@@ -196,13 +193,13 @@ static struct PyModuleDef mylibmodule = {
 };
 
 PyMODINIT_FUNC
-PyInit__mylib(void)
+PyInit__fastgraphFPMS(void)
 {
     PyObject *m;
     if (PyType_Ready(&GraphType) < 0)
         return NULL;
 
-    m = PyModule_Create(&mylibmodule);
+    m = PyModule_Create(&fastgraph_module);
     if (m == NULL)
         return NULL;
 
