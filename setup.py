@@ -13,7 +13,7 @@ ext_modules = [
 setup(
     name="fastgraphFPMS",
     version="0.1.1",
-    description="Librairie python codé en C pour le cours de graph et optimisation combinatoire",
+    description="Python library in C for graph and optimisation.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Flavio D.",
