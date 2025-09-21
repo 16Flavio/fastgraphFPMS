@@ -1,9 +1,11 @@
 # fastgraphFPMS
 
-Librairie Python codé en C pour le cours de graph et d'optimisation combinatoire.
+Library Python in C for graph and optimisation.
 
 ## Installation
 
-'''console
-pip install fastgraphFPMS
-'''
+Use this command to install fastgraphFPMS :
+
+    pip install fastgraphFPMS
+
+Thanks for downloading.
