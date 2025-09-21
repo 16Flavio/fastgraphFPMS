@@ -6,3 +6,4 @@ Librairie Python codé en C pour le cours de graph et d'optimisation combinatoir
 
 '''bash
 pip install fastgraphFPMS
+'''
