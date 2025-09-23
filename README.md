@@ -6,6 +6,8 @@ Python library in C for graph and optimisation.
 
 Use this command to install fastgraphFPMS :
 
-    pip install fastgraphFPMS
+```bash
+pip install fastgraphFPMS
+```
 
 Thanks for downloading.

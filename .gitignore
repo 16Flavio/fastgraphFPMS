@@ -5,3 +5,7 @@
 .gitignore
 
 jetonAPI.txt
+
+.fastgraphFPMS.egg-info/
+
+fastgraphFPMS.cp313-win_amd64.pyd
