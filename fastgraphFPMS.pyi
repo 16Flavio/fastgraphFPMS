@@ -12,7 +12,7 @@ class Graph:
     divers algorithmes graphiques optimisés.
     """
     
-    def __init__(self, matrix: List[List[int]] = None, directed: bool = False) -> None:
+    def __init__(self, matrix: List[List[int]] = None) -> None:
         """
         Crée un graphe à partir d'une matrice d'adjacence.
         
@@ -22,7 +22,7 @@ class Graph:
         """
         ...
     
-    def __init__(self, filename: str, directed: bool = False) -> None:
+    def __init__(self, filename: str) -> None:
         """
         Crée un graphe à partir d'un fichier.
         
@@ -40,21 +40,14 @@ class Graph:
         """Indique si le graphe est dirigé."""
         ...
     
-    def add_edge(self, from_node: int, to_node: int, weight: int = 1) -> None:
-        """
-        Ajoute une arête entre deux nœuds.
-        
-        Args:
-            from_node: Index du nœud source (0-indexé)
-            to_node: Index du nœud destination
-            weight: Poids de l'arête (défaut: 1)
-        """
-        ...
-    
     def load_from_file(self, filename: str) -> None:
         """Charge un graphe depuis un fichier."""
         ...
     
     def save_to_file(self, filename: str) -> None:
         """Sauvegarde le graphe dans un fichier."""
+        ...
+
+    def print(self) -> None:
+        """Affiche les structures de données."""
         ...

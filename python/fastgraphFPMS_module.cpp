@@ -25,7 +25,6 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
         Args:
             matrix: Matrice d'adjacence (liste de listes d'entiers)
-            directed: Si le graphe est dirigé (défaut: False)
             filename: Chemin vers un fichier contenant la matrice
     )pbdoc")
     
@@ -36,28 +35,26 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> graph = Graph()
     )pbdoc")
     
-    .def(py::init<const std::vector<std::vector<int>>&, bool>(), 
-         py::arg("matrix"), py::arg("directed") = false,
+    .def(py::init<const vector<vector<int>>&>(), 
+         py::arg("matrix"),
          R"pbdoc(
         Crée un graphe à partir d'une matrice d'adjacence.
         
         Args:
             matrix: Matrice d'adjacence représentant le graphe
-            directed: True pour un graphe dirigé, False pour non dirigé
             
         Example:
             >>> matrix = [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
             >>> graph = Graph(matrix)
     )pbdoc")
     
-    .def(py::init<const std::string&, bool>(), 
-         py::arg("filename"), py::arg("directed") = false,
+    .def(py::init<const string&>(), 
+         py::arg("filename"),
          R"pbdoc(
         Crée un graphe à partir d'un fichier.
         
         Args:
             filename: Chemin vers le fichier contenant la matrice
-            directed: True pour un graphe dirigé, False pour non dirigé
             
         Example:
             >>> graph = Graph("mon_graphe.txt")
@@ -104,24 +101,11 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
         Args:
             filename: Chemin où sauvegarder le fichier
-    )pbdoc");
-    
-    // Fonction utilitaire
-    m.def("create_graph_from_matrix", [](const std::vector<std::vector<int>>& matrix, bool directed) {
-        return fastgraphfpms::Graph(matrix, directed);
-    }, py::arg("matrix"), py::arg("directed") = false, R"pbdoc(
-        Crée un graphe à partir d'une matrice d'adjacence.
+    )pbdoc")
+
+    .def("print", &fastgraphfpms::Graph::print, R"pbdoc(
+        Affiche les structures de données Head, Successeurs et Weights.
         
-        Args:
-            matrix: Matrice d'adjacence
-            directed: Si le graphe est dirigé (défaut: False)
-            
-        Returns:
-            Graph: Nouvelle instance de graphe
-            
-        Example:
-            >>> matrix = [[0, 1], [1, 0]]
-            >>> graph = create_graph_from_matrix(matrix)
     )pbdoc");
     
     // Version

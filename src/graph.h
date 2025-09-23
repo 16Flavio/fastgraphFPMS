@@ -17,20 +17,21 @@ namespace fastgraphfpms {
 class Graph {
 private:
     int num_nodes;
-    vector<vector<int>> adjacency_matrix;
+    vector<int> Head, Succ, Weights;
     bool is_directed;
     
 public:
     // Constructeurs
     Graph();
-    Graph(const vector<vector<int>>& matrix, bool directed = false);
-    Graph(const string& filename, bool directed = false);
+    Graph(const vector<vector<int>>& matrix);
+    Graph(const string& filename);
     
     // Méthodes de base
     void load_from_file(const string& filename);
     void save_to_file(const string& filename) const;
     int get_num_nodes() const { return num_nodes; }
     bool get_is_directed() const { return is_directed; }
+    void print();
     
     
 };
