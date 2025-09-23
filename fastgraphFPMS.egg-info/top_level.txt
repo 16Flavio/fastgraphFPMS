@@ -1,6 +1,0 @@
-dist
-examples
-fastgraphFPMS
-python
-src
-tests
