@@ -1,6 +1,11 @@
+import sys
 from setuptools import setup, Extension
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 import pybind11
+
+extra_compile_args = []
+if sys.platform == "win32":
+    extra_compile_args = ['/bigobj'] 
 
 ext_modules = [
     Pybind11Extension(
@@ -15,13 +20,13 @@ ext_modules = [
         ],
         language='c++',
         cxx_std=14,
-        extra_compile_args=['/bigobj']  # Important pour Windows
+        extra_compile_args=extra_compile_args,  # Important pour Windows
     ),
 ]
 
 setup(
     name="fastgraphFPMS",
-    version="0.1.3",
+    version="0.1.4",
     author="Flavio D.",
     author_email="drogoflavio16@gmail.com",
     description="Fast Graph Algorithms Library implemented in C++",

@@ -1,6 +1,6 @@
 # fastgraphFPMS
 
-Python library in C for graph and optimisation.
+Python library in C++ for graph and optimisation.
 
 ## Installation
 
