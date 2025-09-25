@@ -106,7 +106,16 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
     .def("print", &fastgraphfpms::Graph::print, R"pbdoc(
         Affiche les structures de données Head, Successeurs et Weights.
         
-    )pbdoc");
+    )pbdoc")
+    
+    .def("bfs", &fastgraphfpms::Graph::bfs,
+        py::arg("start"), R"pbdoc(
+        Effectue une exploration en largeur sur le graphique en partant du noeud start.
+
+        Args:
+            start: noeud de démarrage pour l'exploration
+        )pbdoc");
+
     
     // Version
     #ifdef VERSION_INFO

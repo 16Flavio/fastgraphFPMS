@@ -51,3 +51,12 @@ class Graph:
     def print(self) -> None:
         """Affiche les structures de données."""
         ...
+
+    def bfs(self, start: int) -> Tuple[List[int], List[int]]:
+        """Exploration en largeur sur le graph.
+            Args:
+                Start: int
+            Return:
+                Distance: List[int]
+                Parents: List[int]"""
+        ...
