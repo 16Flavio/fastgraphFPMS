@@ -34,6 +34,8 @@ public:
     void save_to_file(const string& filename) const;
     int get_num_nodes() const { return num_nodes; }
     void print();
+    
+    pair<int,vector<vector<int>>> comp_con() const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

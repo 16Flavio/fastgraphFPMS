@@ -69,3 +69,12 @@ class Graph:
                 Distance: List[int]
                 Parents: List[int]"""
         ...
+    
+    def comp_con(self) -> Tuple[int, List[List[int]]]:
+        """Retourne le nombre de composante connexe et les composantes connexes.
+            Args:
+                /
+            Return:
+                Nombre de composante connexe: int
+                Liste des composantes connexes: List[List[int]]"""
+        ...

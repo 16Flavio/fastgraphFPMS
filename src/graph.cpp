@@ -370,4 +370,42 @@ pair<vector<int>, vector<int>> Graph::dfs(const int& start) const {
     return {dist, parent};
 }
 
+pair<int,vector<vector<int>>> Graph::comp_con() const{
+    
+    int NCC = 0;
+    vector<vector<int>> list_CC;
+
+    vector<int> CC(num_nodes, 0);
+    for(int i = 0; i < num_nodes; i++){
+        if(CC[i] == 0){
+            NCC++;
+
+            vector<int> visited;
+            set<int> seen;
+            deque<int> q;
+            q.push_back(i);
+            seen.insert(i);
+            visited.push_back(i);
+
+            while(!q.empty()){
+                int node = q.front(); q.pop_front();
+                CC[node] = NCC;
+
+                for(int k = HeadSucc[node]; k < HeadSucc[node+1]; k++){
+                    int neighbor = Succ[k];
+                    if(seen.find(neighbor) == seen.end()){
+                        seen.insert(neighbor);
+                        visited.push_back(neighbor);
+                        q.push_back(neighbor);
+                    }
+                }
+
+            }
+            list_CC.push_back(visited);
+        }
+    }
+
+    return {NCC, list_CC};
+}
+
 } // namespace fastgraphfpms

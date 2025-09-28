@@ -115,6 +115,12 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
 
         Args:
             start: noeud de démarrage pour l'exploration
+        )pbdoc")
+        
+        
+    .def("comp_con", &fastgraphfpms::Graph::comp_con,R"pbdoc(
+        Renvoie le nombre de composante connexe et une liste comprenant chaque composante connexe.
+        
         )pbdoc");
     
     // Version
