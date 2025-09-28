@@ -70,18 +70,24 @@ def bfs(matrix, start):
 # print("Parents : ",par)
 
 
+# g2 = fg.Graph()
+# g2.load_from_file("tests/input_7.txt")
+
+# g2.print()
+
+# start = time.time()
+# NSCC, list_scc = g2.find_scc()
+# print(f"Réalisé en {time.time() - start} secondes")
+# print(f"Nombre de composantes fortement connexes : {NSCC}")
+# for i, elem in enumerate(list_scc):
+#     print(f"Composante fortement connexe numéro {i+1} : {elem}")
 
 
-g2 = fg.Graph()
-g2.load_from_file("tests/input_7.txt")
+g3 = fg.Graph()
+g3.load_from_file("tests/input_8.txt")
+group1, group2 = g3.is_bigraph()
 
-g2.print()
-
-start = time.time()
-NSCC, list_scc = g2.find_scc()
-print(f"Réalisé en {time.time() - start} secondes")
-print(f"Nombre de composantes fortement connexes : {NSCC}")
-for i, elem in enumerate(list_scc):
-    print(f"Composante fortement connexe numéro {i+1} : {elem}")
+print(f"Team blue : {group1}")
+print(f"Team Red : {group2}")
 
 print('✅ Test réussi!')

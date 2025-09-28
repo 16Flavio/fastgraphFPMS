@@ -461,8 +461,44 @@ pair<int, vector<vector<int>>> Graph::find_scc() const{
             }
         }
     }
-
     return {NSCC, scc_list};
+}
+
+pair<vector<int>, vector<int>> Graph::is_bigraph() const{
+    
+    bool Bip = true;
+    vector<int> color(num_nodes, 0), team1, team2;
+
+    for(int s = 0; s < num_nodes; s++){
+        if(color[s] == 0 && Bip){
+            deque<int> Q; Q.push_back(s);
+            color[s] = 2;
+            team2.push_back(s);
+            do{
+                int x = Q.front(); Q.pop_front();
+                for(int k = HeadSucc[x]; k < HeadSucc[x+1]; k++){
+                    int y = Succ[k];
+                    if(color[y] == color[x]){
+                        Bip = false;
+                    }else if(color[y] == 0){
+                        color[y] = 3 - color[x];
+                        if(color[y] == 1){
+                            team1.push_back(y);
+                        }else if(color[y] == 2){
+                            team2.push_back(y);
+                        }
+                        Q.push_back(y);
+                    }
+                }
+            }while(!Q.empty() && Bip);
+        }
+    }
+
+    if(Bip){
+        return{team1, team2};
+    }else{
+        return{{},{}};
+    }
 
 }
 

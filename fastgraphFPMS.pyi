@@ -87,3 +87,12 @@ class Graph:
                 Nombre de composante fortement connexe: int
                 Liste des composantes fortement connexes: List[List[int]]"""
         ...
+    def is_bigraph(self) -> Tuple[List[int], List[int]]:
+        """Retourne, si le graphe est bipartie, deux listes contenant les noeuds séparés en deux groupes.
+            Args:
+                /
+            Return:
+                Group 1: List[int]
+                Group 2: List[int]
+            """
+        ...
