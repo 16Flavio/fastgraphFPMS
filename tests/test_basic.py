@@ -1,7 +1,7 @@
 # Test basique
-import fastgraphFPMS as fg
 import time
 from collections import deque
+import fastgraphFPMS as fg
 
 def load_adjacency_matrix(filename):
     with open(filename, "r", encoding="utf-8") as f:
@@ -47,26 +47,41 @@ def bfs(matrix, start):
 
     return dist, parent
 
-g = fg.Graph()
+# g = fg.Graph()
 
-g.load_from_file("tests/input_5.txt")
+# g.load_from_file("tests/input_5.txt")
+
+# start = time.time()
+# dist, par = g.bfs(48)
+# print(f"Temps pris par C++ pour bfs : {time.time() - start} secondes")
+
+# print("Distance : ",dist)
+# print("Parents : ",par)
+
+# g.save_to_file("tests/output_5.txt")
+
+# matrix = load_adjacency_matrix("tests/output_5.txt")
+
+# start = time.time()
+# dist, par = bfs(matrix, 48)
+# print(f"Temps pris par python pour bfs : {time.time() - start} secondes")
+
+# print("Distance : ",dist)
+# print("Parents : ",par)
+
+
+
+
+g2 = fg.Graph()
+g2.load_from_file("tests/input_7.txt")
+
+g2.print()
 
 start = time.time()
-dist, par = g.bfs(48)
-print(f"Temps pris par C++ pour bfs : {time.time() - start} secondes")
-
-print("Distance : ",dist)
-print("Parents : ",par)
-
-g.save_to_file("tests/output_5.txt")
-
-matrix = load_adjacency_matrix("tests/output_5.txt")
-
-start = time.time()
-dist, par = bfs(matrix, 48)
-print(f"Temps pris par python pour bfs : {time.time() - start} secondes")
-
-print("Distance : ",dist)
-print("Parents : ",par)
+NSCC, list_scc = g2.find_scc()
+print(f"Réalisé en {time.time() - start} secondes")
+print(f"Nombre de composantes fortement connexes : {NSCC}")
+for i, elem in enumerate(list_scc):
+    print(f"Composante fortement connexe numéro {i+1} : {elem}")
 
 print('✅ Test réussi!')

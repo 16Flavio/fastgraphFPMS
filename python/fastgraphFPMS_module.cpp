@@ -118,8 +118,13 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         )pbdoc")
         
         
-    .def("comp_con", &fastgraphfpms::Graph::comp_con,R"pbdoc(
+    .def("find_cc", &fastgraphfpms::Graph::find_cc,R"pbdoc(
         Renvoie le nombre de composante connexe et une liste comprenant chaque composante connexe.
+        
+        )pbdoc")
+
+    .def("find_scc", &fastgraphfpms::Graph::find_scc,R"pbdoc(
+        Renvoie le nombre de composante fortement connexe et une liste comprenant chaque composante fortement connexe.
         
         )pbdoc");
     

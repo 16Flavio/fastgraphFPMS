@@ -35,7 +35,8 @@ public:
     int get_num_nodes() const { return num_nodes; }
     void print();
     
-    pair<int,vector<vector<int>>> comp_con() const;
+    pair<int,vector<vector<int>>> find_cc() const;
+    pair<int,vector<vector<int>>> find_scc() const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

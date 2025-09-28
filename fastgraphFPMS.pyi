@@ -70,11 +70,20 @@ class Graph:
                 Parents: List[int]"""
         ...
     
-    def comp_con(self) -> Tuple[int, List[List[int]]]:
+    def find_cc(self) -> Tuple[int, List[List[int]]]:
         """Retourne le nombre de composante connexe et les composantes connexes.
             Args:
                 /
             Return:
                 Nombre de composante connexe: int
                 Liste des composantes connexes: List[List[int]]"""
+        ...
+    
+    def find_scc(self) -> Tuple[int, List[List[int]]]:
+        """Retourne le nombre de composante fortement connexe et les composantes fortement connexes.
+            Args:
+                /
+            Return:
+                Nombre de composante fortement connexe: int
+                Liste des composantes fortement connexes: List[List[int]]"""
         ...

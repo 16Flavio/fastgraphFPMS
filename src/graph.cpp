@@ -370,7 +370,7 @@ pair<vector<int>, vector<int>> Graph::dfs(const int& start) const {
     return {dist, parent};
 }
 
-pair<int,vector<vector<int>>> Graph::comp_con() const{
+pair<int,vector<vector<int>>> Graph::find_cc() const{
     
     int NCC = 0;
     vector<vector<int>> list_CC;
@@ -381,20 +381,17 @@ pair<int,vector<vector<int>>> Graph::comp_con() const{
             NCC++;
 
             vector<int> visited;
-            set<int> seen;
             deque<int> q;
             q.push_back(i);
-            seen.insert(i);
             visited.push_back(i);
 
             while(!q.empty()){
-                int node = q.front(); q.pop_front();
+                int node = q.back(); q.pop_back();
                 CC[node] = NCC;
 
                 for(int k = HeadSucc[node]; k < HeadSucc[node+1]; k++){
                     int neighbor = Succ[k];
-                    if(seen.find(neighbor) == seen.end()){
-                        seen.insert(neighbor);
+                    if(CC[neighbor] == 0){
                         visited.push_back(neighbor);
                         q.push_back(neighbor);
                     }
@@ -406,6 +403,67 @@ pair<int,vector<vector<int>>> Graph::comp_con() const{
     }
 
     return {NCC, list_CC};
+}
+
+pair<int, vector<vector<int>>> Graph::find_scc() const{
+    
+    stack<int> P, Q;
+    int count = 0, NSCC = 0;
+    vector<int> DFN(num_nodes, 0), LOW(num_nodes, 0), SCC(num_nodes, 0), NEXT = HeadSucc;
+    vector<bool> inP(num_nodes, false);
+    
+    vector<vector<int>> scc_list;
+
+    for(int s = 0; s < num_nodes; s++){
+        if(DFN[s] == 0){ 
+            count++;
+            DFN[s] = count;
+            LOW[s] = count;
+
+            P.push(s);
+            Q.push(s);
+            inP[s] = true;
+
+            while(!Q.empty()){
+                int x = Q.top();
+                if(NEXT[x] == HeadSucc[x+1]){
+                    if(LOW[x] == DFN[x]){
+                        NSCC++;
+                        vector<int> current_scc;
+                        int y = -1;
+                        do{
+                            y = P.top(); P.pop();
+                            inP[y] = false;
+                            SCC[y] = NSCC;
+                            current_scc.push_back(y);
+                        }while(y != x);
+                        scc_list.push_back(current_scc);
+                    }
+                    Q.pop();
+                    if (!Q.empty()){
+                        int parent = Q.top();
+                        LOW[parent] = min(LOW[parent], LOW[x]);
+                    }
+                }else{
+                    int y = Succ[NEXT[x]];
+                    NEXT[x]++;
+                    if(DFN[y] == 0){
+                        count++;
+                        DFN[y] = count;
+                        LOW[y] = count;
+                        P.push(y);
+                        Q.push(y);
+                        inP[y] = true;
+                    }else if(DFN[y] < DFN[x] && inP[y]){
+                        LOW[x] = min(LOW[x], DFN[y]);
+                    }
+                }
+            }
+        }
+    }
+
+    return {NSCC, scc_list};
+
 }
 
 } // namespace fastgraphfpms
