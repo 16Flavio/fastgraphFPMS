@@ -71,13 +71,6 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> nb_nodes = graph.get_num_nodes()
             >>> print(f"Le graphe a {nb_nodes} nœuds")
     )pbdoc")
-    
-    .def("get_is_directed", &fastgraphfpms::Graph::get_is_directed, R"pbdoc(
-        Indique si le graphe est dirigé.
-        
-        Returns:
-            bool: True si le graphe est dirigé, False sinon
-    )pbdoc")
 
     // === FICHIERS ===
     .def("load_from_file", &fastgraphfpms::Graph::load_from_file, 
@@ -114,8 +107,15 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
 
         Args:
             start: noeud de démarrage pour l'exploration
-        )pbdoc");
+        )pbdoc")
+        
+    .def("dfs", &fastgraphfpms::Graph::dfs,
+        py::arg("start"), R"pbdoc(
+        Effectue une exploration en profondeur sur le graphique en partant du noeud start.
 
+        Args:
+            start: noeud de démarrage pour l'exploration
+        )pbdoc");
     
     // Version
     #ifdef VERSION_INFO

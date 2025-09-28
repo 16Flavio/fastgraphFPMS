@@ -60,3 +60,12 @@ class Graph:
                 Distance: List[int]
                 Parents: List[int]"""
         ...
+
+    def dfs(self, start: int) -> Tuple[List[int], List[int]]:
+        """Exploration en profondeur sur le graph.
+            Args:
+                Start: int
+            Return:
+                Distance: List[int]
+                Parents: List[int]"""
+        ...

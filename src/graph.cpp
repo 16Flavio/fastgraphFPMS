@@ -14,7 +14,7 @@ namespace fastgraphfpms {
 
 using namespace std;
 
-Graph::Graph() : num_nodes(0), is_directed(false) {}
+Graph::Graph() : num_nodes(0) {}
 
 Graph::Graph(const vector<vector<int>>& matrix) 
     : num_nodes(matrix.size()){
@@ -312,15 +312,15 @@ pair<vector<int>, vector<int>> Graph::bfs(const int& start) const{
     // Initialisation
     vector<int> dist(num_nodes, numeric_limits<int>::max());
     vector<int> parent(num_nodes, -1);
-    queue<int> q;
+    deque<int> q;
 
     // Point de départ
     dist[start] = 0;
-    q.push(start);
+    q.push_back(start);
 
     // Parcours BFS
     while (!q.empty()) {
-        int u = q.front(); q.pop();
+        int u = q.front(); q.pop_front();
 
         // Parcourir les successeurs de u
         for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
@@ -329,7 +329,40 @@ pair<vector<int>, vector<int>> Graph::bfs(const int& start) const{
             if (dist[v] == numeric_limits<int>::max()) {
                 dist[v] = dist[u] + 1;
                 parent[v] = u;
-                q.push(v);
+                q.push_back(v);
+            }
+        }
+    }
+
+    return {dist, parent};
+}
+
+pair<vector<int>, vector<int>> Graph::dfs(const int& start) const {
+    if (start < 0 || start >= num_nodes) {
+        throw out_of_range("Erreur dans bfs(): start doit être entre 0 et num_nodes - 1");
+    }
+
+    // Initialisation
+    vector<int> dist(num_nodes, numeric_limits<int>::max());
+    vector<int> parent(num_nodes, -1);
+    deque<int> q;
+
+    // Point de départ
+    dist[start] = 0;
+    q.push_back(start);
+
+    // Parcours BFS
+    while (!q.empty()) {
+        int u = q.back(); q.pop_back();
+
+        // Parcourir les successeurs de u
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+
+            if (dist[v] == numeric_limits<int>::max()) {
+                dist[v] = dist[u] + 1;
+                parent[v] = u;
+                q.push_back(v);
             }
         }
     }
