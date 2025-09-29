@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 #include <deque>
+#include <numeric>
 
 namespace fastgraphfpms {
 
@@ -542,6 +543,67 @@ pair<int, vector<tuple<int,int,int>>> Graph::prim() const{
         }
     }
     return {res,mst};
+}
+
+struct Edge {
+    int u, v, w;
+};
+
+struct DSU {
+    vector<int> parent, rank;
+
+    DSU(int n) : parent(n), rank(n, 0) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if(parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    bool unite(int x, int y) {
+        x = find(x);
+        y = find(y);
+        if(x == y) return false;
+        if(rank[x] < rank[y]) swap(x, y);
+        parent[y] = x;
+        if(rank[x] == rank[y]) rank[x]++;
+        return true;
+    }
+};
+
+pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
+    // 1. Construire la liste des arêtes
+    vector<Edge> edges;
+    int num_edges = (int)Succ.size();
+    edges.reserve(num_edges);
+    for(int u = 0; u < num_nodes; u++) {
+        for(int k = HeadSucc[u]; k < HeadSucc[u+1]; k++) {
+            int v = Succ[k], w = WeightsSucc[k];
+            if(u < v) { 
+                edges.push_back({u, v, w});
+            }
+        }
+    }
+
+    sort(edges.begin(), edges.end(), [](const Edge &a, const Edge &b) {
+        return a.w < b.w;
+    });
+
+    DSU dsu(num_nodes);
+
+    int res = 0;
+    vector<tuple<int,int,int>> mst;
+
+    for(const auto &e : edges) {
+        if(dsu.unite(e.u, e.v)) {
+            res += e.w;
+            mst.push_back({e.u, e.v, e.w});
+        }
+    }
+
+    return {res, mst};
 }
 
 } // namespace fastgraphfpms

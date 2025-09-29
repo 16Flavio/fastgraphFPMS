@@ -97,7 +97,17 @@ class Graph:
             """
         ...
     
-    def prim(self) -> int:
+    def prim(self) -> Tuple[int,List[Tuple[int,int,int]]]:
+        """Retourne le coût de l'arbre optimale.
+            Args:
+                /
+            Return:
+                Cost: int
+                Mst: List[Tuple[int, int, int]]
+        """
+        ...
+
+    def kruskal(self) -> Tuple[int,List[Tuple[int,int,int]]]:
         """Retourne le coût de l'arbre optimale.
             Args:
                 /

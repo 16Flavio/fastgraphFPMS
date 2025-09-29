@@ -93,7 +93,7 @@ def bfs(matrix, start):
 
 g4 = fg.Graph()
 g4.load_from_file("tests/input_9.txt")
-cost, mst = g4.prim()
+cost, mst = g4.kruskal()
 
 print(f"L'arbre optimal coûte : {cost}")
 print(mst)

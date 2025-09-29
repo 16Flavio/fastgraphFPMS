@@ -159,8 +159,14 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
     .def("prim", &fastgraphfpms::Graph::prim, R"pbdoc(
         
-        Renvoie le coût de l'arbre optimale et renvoie également l'abre sous forme de liste contenant des tuples.
+        Renvoie le coût de l'arbre optimale et renvoie également l'arbre sous forme de liste contenant des tuples.
         
+        )pbdoc")
+        
+    .def("kruskal", &fastgraphfpms::Graph::kruskal, R"pbdoc(
+
+        Renvoie le coût de l'arbre optimale et renvoie également l'arbre sous forme de liste contenant des tuples.
+
         )pbdoc");
     
     // Version
