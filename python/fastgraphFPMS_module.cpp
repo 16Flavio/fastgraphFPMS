@@ -6,7 +6,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(fastgraphFPMS, m) {
     m.doc() = R"pbdoc(
-    
+
         FastGraphFPMS - Une librairie de graphes ultra-rapide implémentée en C++
         
         Cette librairie fournit des algorithmes de graphes optimisés pour la performance.
@@ -155,6 +155,12 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
 
         Renvoie, si le graph est bipartie, deux listes contenant les noeuds séparés en deux groupes.
 
+        )pbdoc")
+        
+    .def("prim", &fastgraphfpms::Graph::prim, R"pbdoc(
+        
+        Renvoie le coût de l'arbre optimale et renvoie également l'abre sous forme de liste contenant des tuples.
+        
         )pbdoc");
     
     // Version

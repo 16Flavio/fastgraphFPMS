@@ -96,3 +96,13 @@ class Graph:
                 Group 2: List[int]
             """
         ...
+    
+    def prim(self) -> int:
+        """Retourne le coût de l'arbre optimale.
+            Args:
+                /
+            Return:
+                Cost: int
+                Mst: List[Tuple[int, int, int]]
+        """
+        ...

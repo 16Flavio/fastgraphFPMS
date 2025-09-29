@@ -499,7 +499,49 @@ pair<vector<int>, vector<int>> Graph::is_bigraph() const{
     }else{
         return{{},{}};
     }
+}
 
+pair<int, vector<tuple<int,int,int>>> Graph::prim() const{
+
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+
+    vector<bool> visited(num_nodes, false);
+    vector<int> parent(num_nodes, -1);
+    vector<int> key(num_nodes, INT_MAX);
+
+    int res = 0;
+    vector<tuple<int,int,int>> mst;
+
+    key[0] = 0;
+    pq.push({0,0});
+
+    while(!pq.empty()){
+        auto p = pq.top(); pq.pop();
+
+        int wt = p.first;
+        int u = p.second;
+
+        if(visited[u]){
+            continue;
+        }
+
+        res += wt;
+        visited[u] = true;
+
+        if(parent[u] != -1){
+            mst.push_back({parent[u], u, wt});
+        }
+
+        for(int k = HeadSucc[u]; k < HeadSucc[u+1]; k++){
+            int neighbor = Succ[k], weight = WeightsSucc[k];
+            if(!visited[neighbor] && weight < key[neighbor]){
+                key[neighbor] = weight;
+                parent[neighbor] = u;
+                pq.push({weight, neighbor});
+            }
+        }
+    }
+    return {res,mst};
 }
 
 } // namespace fastgraphfpms

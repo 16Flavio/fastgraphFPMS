@@ -83,11 +83,20 @@ def bfs(matrix, start):
 #     print(f"Composante fortement connexe numéro {i+1} : {elem}")
 
 
-g3 = fg.Graph()
-g3.load_from_file("tests/input_8.txt")
-group1, group2 = g3.is_bigraph()
+# g3 = fg.Graph()
+# g3.load_from_file("tests/input_8.txt")
+# group1, group2 = g3.is_bigraph()
 
-print(f"Team blue : {group1}")
-print(f"Team Red : {group2}")
+# print(f"Team blue : {group1}")
+# print(f"Team Red : {group2}")
+
+
+g4 = fg.Graph()
+g4.load_from_file("tests/input_9.txt")
+cost, mst = g4.prim()
+
+print(f"L'arbre optimal coûte : {cost}")
+print(mst)
+
 
 print('✅ Test réussi!')

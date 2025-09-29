@@ -38,6 +38,7 @@ public:
     pair<int,vector<vector<int>>> find_cc() const;
     pair<int,vector<vector<int>>> find_scc() const;
     pair<vector<int>, vector<int>> is_bigraph() const;
+    pair<int, vector<tuple<int,int,int>>> prim() const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

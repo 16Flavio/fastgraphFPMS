@@ -19,14 +19,14 @@ ext_modules = [
             pybind11.get_include()
         ],
         language='c++',
-        cxx_std=14,
+        cxx_std=17,
         extra_compile_args=extra_compile_args,  # Important pour Windows
     ),
 ]
 
 setup(
     name="fastgraphFPMS",
-    version="0.1.9",
+    version="0.2.0",
     author="Flavio D.",
     author_email="drogoflavio16@gmail.com",
     description="Fast Graph Algorithms Library implemented in C++",
