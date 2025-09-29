@@ -574,7 +574,6 @@ struct DSU {
 };
 
 pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
-    // 1. Construire la liste des arêtes
     vector<Edge> edges;
     int num_edges = (int)Succ.size();
     edges.reserve(num_edges);
@@ -604,6 +603,38 @@ pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
     }
 
     return {res, mst};
+}
+
+pair<vector<int>, vector<int>> Graph::dijkstra(int s) const {
+    using P = pair<int,int>; 
+
+    vector<int> dist(num_nodes, numeric_limits<int>::max());
+    vector<int> parent(num_nodes, -1);
+    vector<bool> visited(num_nodes, false);
+
+    priority_queue<P, vector<P>, greater<P>> pq;
+
+    dist[s] = 0;
+    parent[s] = s;
+    pq.push({0, s});
+
+    while(!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+
+        if (visited[u]) continue;   
+        visited[u] = true;
+
+        for(int k = HeadSucc[u]; k < HeadSucc[u+1]; k++) {
+            int v = Succ[k], w = WeightsSucc[k];
+            if (!visited[v] && d + w < dist[v]) {
+                dist[v] = d + w;
+                parent[v] = u;
+                pq.push({dist[v], v});   
+            }
+        }
+    }
+
+    return {dist, parent};
 }
 
 } // namespace fastgraphfpms

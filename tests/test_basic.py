@@ -91,12 +91,18 @@ def bfs(matrix, start):
 # print(f"Team Red : {group2}")
 
 
-g4 = fg.Graph()
-g4.load_from_file("tests/input_9.txt")
-cost, mst = g4.kruskal()
+# g4 = fg.Graph()
+# g4.load_from_file("tests/input_9.txt")
+# cost, mst = g4.kruskal()
 
-print(f"L'arbre optimal coûte : {cost}")
-print(mst)
+# print(f"L'arbre optimal coûte : {cost}")
+# print(mst)
 
+
+g5 = fg.Graph()
+g5.load_from_file("tests/input_10.txt")
+dist, par = g5.dijkstra(0)
+print(dist)
+print(par)
 
 print('✅ Test réussi!')

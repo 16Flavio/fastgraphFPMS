@@ -116,3 +116,14 @@ class Graph:
                 Mst: List[Tuple[int, int, int]]
         """
         ...
+
+    def dijkstra(self, start: int) -> Tuple[List[int], List[int]]:
+        """
+        Retourne les distances depuis le noeud start ainsi que les parents de chaque noeud via Dijkstra.
+            Args:
+                /
+            Return:
+                Dist: List[int]
+                Parent: List[int]
+        """
+        ...

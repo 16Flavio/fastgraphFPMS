@@ -40,6 +40,7 @@ public:
     pair<vector<int>, vector<int>> is_bigraph() const;
     pair<int, vector<tuple<int,int,int>>> prim() const;
     pair<int, vector<tuple<int,int,int>>> kruskal() const;
+    pair<vector<int>, vector<int>> dijkstra(int s) const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

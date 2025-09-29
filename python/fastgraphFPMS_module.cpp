@@ -167,6 +167,12 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
 
         Renvoie le coût de l'arbre optimale et renvoie également l'arbre sous forme de liste contenant des tuples.
 
+        )pbdoc")
+        
+    .def("dijkstra", &fastgraphfpms::Graph::dijkstra, R"pbdoc(
+
+        Renvoie deux vecteurs, un vecteur distance et un vecteur parent à l'aide de l'algorithme de Dijkstra.
+
         )pbdoc");
     
     // Version
