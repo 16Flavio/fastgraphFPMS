@@ -169,7 +169,7 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
 
         )pbdoc")
         
-    .def("dijkstra", &fastgraphfpms::Graph::dijkstra, R"pbdoc(
+    .def("dijkstra", &fastgraphfpms::Graph::dijkstra, py::arg("s"), py::arg("t"), R"pbdoc(
 
         Renvoie deux vecteurs, un vecteur distance et un vecteur parent à l'aide de l'algorithme de Dijkstra.
 

@@ -101,7 +101,7 @@ def bfs(matrix, start):
 
 g5 = fg.Graph()
 g5.load_from_file("tests/input_10.txt")
-dist, par = g5.dijkstra(0)
+dist, par = g5.dijkstra(0, 7)
 print(dist)
 print(par)
 

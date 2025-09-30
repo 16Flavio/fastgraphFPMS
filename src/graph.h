@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <limits>
 #include <tuple>
+#include <variant>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ public:
     pair<vector<int>, vector<int>> is_bigraph() const;
     pair<int, vector<tuple<int,int,int>>> prim() const;
     pair<int, vector<tuple<int,int,int>>> kruskal() const;
-    pair<vector<int>, vector<int>> dijkstra(int s) const;
+    variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra(int s, int t=-1) const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

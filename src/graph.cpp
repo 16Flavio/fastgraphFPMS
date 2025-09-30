@@ -605,7 +605,7 @@ pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
     return {res, mst};
 }
 
-pair<vector<int>, vector<int>> Graph::dijkstra(int s) const {
+variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(int s, int t) const {
     using P = pair<int,int>; 
 
     vector<int> dist(num_nodes, numeric_limits<int>::max());
@@ -624,6 +624,17 @@ pair<vector<int>, vector<int>> Graph::dijkstra(int s) const {
         if (visited[u]) continue;   
         visited[u] = true;
 
+        if (t != -1 && u == t) {
+            vector<int> path;
+            for (int cur = t; cur != s; cur = parent[cur]) {
+                if (cur == -1) break; 
+                path.push_back(cur);
+            }
+            path.push_back(s);
+            reverse(path.begin(), path.end());
+            return make_pair(dist[t], path);
+        }
+
         for(int k = HeadSucc[u]; k < HeadSucc[u+1]; k++) {
             int v = Succ[k], w = WeightsSucc[k];
             if (!visited[v] && d + w < dist[v]) {
@@ -634,7 +645,7 @@ pair<vector<int>, vector<int>> Graph::dijkstra(int s) const {
         }
     }
 
-    return {dist, parent};
+    return make_pair(dist, parent);
 }
 
 } // namespace fastgraphfpms

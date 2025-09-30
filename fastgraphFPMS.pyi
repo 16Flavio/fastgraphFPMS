@@ -117,13 +117,18 @@ class Graph:
         """
         ...
 
-    def dijkstra(self, start: int) -> Tuple[List[int], List[int]]:
+    def dijkstra(self, s: int, t: int = -1) -> Union[Tuple[List[int], List[int]], Tuple[int, List[int]]]:
         """
         Retourne les distances depuis le noeud start ainsi que les parents de chaque noeud via Dijkstra.
             Args:
-                /
+                s: int
+                t: int = -1
             Return:
-                Dist: List[int]
-                Parent: List[int]
+                if t == -1:
+                    Dist: List[int]
+                    Parent: List[int]
+                else:
+                    Dist: int
+                    Parent: List[int]
         """
         ...
