@@ -238,6 +238,122 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> if graph.has_negative_cycle_floyd():
             ...     print("Attention: cycle négatif détecté!")
 
+    )pbdoc")
+
+    .def("find_eulerian_path", &fastgraphfpms::Graph::find_eulerian_path, R"pbdoc(
+
+        Trouve un chemin eulérien dans le graphe (passe par chaque arête exactement une fois).
+        
+        Returns:
+            list: Chemin eulérien, ou liste vide si aucun n'existe
+            
+        Example:
+            >>> path = graph.find_eulerian_path()
+            >>> if path:
+            ...     print(f"Chemin eulérien: {path}")
+
+    )pbdoc")
+
+    .def("find_eulerian_circuit", &fastgraphfpms::Graph::find_eulerian_circuit, R"pbdoc(
+
+        Trouve un circuit eulérien dans le graphe (cycle qui passe par chaque arête exactement une fois).
+        
+        Returns:
+            list: Circuit eulérien, ou liste vide si aucun n'existe
+            
+        Example:
+            >>> circuit = graph.find_eulerian_circuit()
+            >>> if circuit:
+            ...     print(f"Circuit eulérien: {circuit}")
+
+    )pbdoc")
+
+    .def("has_eulerian_path", &fastgraphfpms::Graph::has_eulerian_path, R"pbdoc(
+
+        Vérifie si le graphe contient un chemin eulérien.
+        
+        Returns:
+            bool: True si un chemin eulérien existe
+            
+        Example:
+            >>> if graph.has_eulerian_path():
+            ...     print("Le graphe a un chemin eulérien")
+
+    )pbdoc")
+
+    .def("has_eulerian_circuit", &fastgraphfpms::Graph::has_eulerian_circuit, R"pbdoc(
+
+        Vérifie si le graphe contient un circuit eulérien.
+        
+        Returns:
+            bool: True si un circuit eulérien existe
+            
+        Example:
+            >>> if graph.has_eulerian_circuit():
+            ...     print("Le graphe a un circuit eulérien")
+
+    )pbdoc")
+
+    .def("find_hamiltonian_path", &fastgraphfpms::Graph::find_hamiltonian_path, R"pbdoc(
+
+        Trouve un chemin hamiltonien dans le graphe (passe par chaque sommet exactement une fois).
+        
+        Note: Algorithme exponentiel, à utiliser uniquement sur de petits graphes.
+        
+        Returns:
+            list: Chemin hamiltonien, ou liste vide si aucun n'existe
+            
+        Example:
+            >>> path = graph.find_hamiltonian_path()
+            >>> if path:
+            ...     print(f"Chemin hamiltonien: {path}")
+
+    )pbdoc")
+
+    .def("find_hamiltonian_circuit", &fastgraphfpms::Graph::find_hamiltonian_circuit, R"pbdoc(
+
+        Trouve un cycle hamiltonien dans le graphe (cycle qui passe par chaque sommet exactement une fois).
+        
+        Note: Algorithme exponentiel, à utiliser uniquement sur de petits graphes.
+        
+        Returns:
+            list: Cycle hamiltonien, ou liste vide si aucun n'existe
+            
+        Example:
+            >>> circuit = graph.find_hamiltonian_circuit()
+            >>> if circuit:
+            ...     print(f"Cycle hamiltonien: {circuit}")
+
+    )pbdoc")
+
+    .def("has_hamiltonian_path", &fastgraphfpms::Graph::has_hamiltonian_path, R"pbdoc(
+
+        Vérifie si le graphe pourrait contenir un chemin hamiltonien (condition nécessaire).
+        
+        Note: Condition nécessaire mais non suffisante.
+        
+        Returns:
+            bool: True si les conditions nécessaires sont satisfaites
+            
+        Example:
+            >>> if graph.has_hamiltonian_path():
+            ...     print("Le graphe pourrait avoir un chemin hamiltonien")
+
+    )pbdoc")
+
+    .def("has_hamiltonian_circuit", &fastgraphfpms::Graph::has_hamiltonian_circuit, R"pbdoc(
+
+        Vérifie si le graphe pourrait contenir un cycle hamiltonien (condition nécessaire).
+        
+        Note: Condition nécessaire mais non suffisante.
+        
+        Returns:
+            bool: True si les conditions nécessaires sont satisfaites
+            
+        Example:
+            >>> if graph.has_hamiltonian_circuit():
+            ...     print("Le graphe pourrait avoir un cycle hamiltonien")
+
     )pbdoc");
     
     // Version

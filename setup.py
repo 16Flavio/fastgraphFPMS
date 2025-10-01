@@ -26,7 +26,7 @@ ext_modules = [
 
 setup(
     name="fastgraphFPMS",
-    version="0.2.7",
+    version="0.2.8",
     author="Flavio D.",
     author_email="drogoflavio16@gmail.com",
     description="Fast Graph Algorithms Library implemented in C++",

@@ -231,3 +231,79 @@ class Graph:
             ...     print("Cycle négatif détecté!")
         """
         ...
+
+    def find_eulerian_path(self) -> List[int]:
+        """
+        Trouve un chemin eulérien (passe par chaque arête exactement une fois).
+        
+        Returns:
+            Liste des nœuds dans l'ordre du chemin, ou liste vide si impossible
+        """
+        ...
+
+    def find_eulerian_circuit(self) -> List[int]:
+        """
+        Trouve un circuit eulérien (cycle qui passe par chaque arête exactement une fois).
+        
+        Returns:
+            Liste des nœuds dans l'ordre du circuit, ou liste vide si impossible
+        """
+        ...
+
+    def has_eulerian_path(self) -> bool:
+        """
+        Vérifie l'existence d'un chemin eulérien.
+        
+        Returns:
+            True si un chemin eulérien existe
+        """
+        ...
+
+    def has_eulerian_circuit(self) -> bool:
+        """
+        Vérifie l'existence d'un circuit eulérien.
+        
+        Returns:
+            True si un circuit eulérien existe
+        """
+        ...
+
+    def find_hamiltonian_path(self) -> List[int]:
+        """
+        Trouve un chemin hamiltonien (passe par chaque sommet exactement une fois).
+        
+        Warning: Algorithme exponentiel - pour petits graphes seulement.
+        
+        Returns:
+            Liste des nœuds dans l'ordre du chemin, ou liste vide si impossible
+        """
+        ...
+
+    def find_hamiltonian_circuit(self) -> List[int]:
+        """
+        Trouve un cycle hamiltonien (passe par chaque sommet exactement une fois).
+        
+        Warning: Algorithme exponentiel - pour petits graphes seulement.
+        
+        Returns:
+            Liste des nœuds dans l'ordre du cycle, ou liste vide si impossible
+        """
+        ...
+
+    def has_hamiltonian_path(self) -> bool:
+        """
+        Vérifie les conditions nécessaires pour un chemin hamiltonien.
+        
+        Returns:
+            True si les conditions nécessaires sont satisfaites
+        """
+        ...
+
+    def has_hamiltonian_circuit(self) -> bool:
+        """
+        Vérifie les conditions nécessaires pour un cycle hamiltonien.
+        
+        Returns:
+            True si les conditions nécessaires sont satisfaites
+        """
+        ...

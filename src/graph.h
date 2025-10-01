@@ -23,7 +23,9 @@ private:
 
     void create_pred();
     void compute_topo_order();
-    
+    bool hamiltonian_path_util(vector<int>& path, vector<bool>& visited, int count);
+    bool hamiltonian_circuit_util(vector<int>& path, vector<bool>& visited, int count);
+
 public:
     // Constructeurs
     Graph();
@@ -49,6 +51,14 @@ public:
     pair<vector<vector<int>>, vector<vector<int>>> floyd_warshall() const;
     vector<vector<int>> get_shortest_paths_matrix() const; 
     bool has_negative_cycle_floyd() const; 
+    vector<int> find_eulerian_path();
+    vector<int> find_eulerian_circuit();
+    bool has_eulerian_path() const; 
+    bool has_eulerian_circuit() const; 
+    vector<int> find_hamiltonian_path(); 
+    vector<int> find_hamiltonian_circuit(); 
+    bool has_hamiltonian_path() const; 
+    bool has_hamiltonian_circuit() const; 
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

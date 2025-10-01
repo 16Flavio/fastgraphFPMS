@@ -995,4 +995,248 @@ bool Graph::has_negative_cycle_floyd() const {
     return false;
 }
 
+vector<int> Graph::find_eulerian_path() {
+    if (!has_eulerian_path()) {
+        return {};
+    }
+
+    vector<int> out_degree = DemiDegreExt;
+    vector<int> in_degree = DemiDegreInt;
+
+    int start_node = -1;
+    int end_node = -1;
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        if (out_degree[i] - in_degree[i] == 1) {
+            if (start_node != -1) return {}; 
+            start_node = i;
+        } else if (in_degree[i] - out_degree[i] == 1) {
+            if (end_node != -1) return {}; 
+            end_node = i;
+        } else if (in_degree[i] != out_degree[i]) {
+            return {}; 
+        }
+    }
+
+    if (start_node == -1) {
+        for (int i = 0; i < num_nodes; ++i) {
+            if (out_degree[i] > 0) {
+                start_node = i;
+                break;
+            }
+        }
+    }
+
+    if (start_node == -1) return {};
+
+    vector<int> path;
+    stack<int> st;
+    st.push(start_node);
+
+    vector<int> next_index(num_nodes, 0); 
+    vector<vector<pair<int, bool>>> edge_used(num_nodes); 
+
+    for (int u = 0; u < num_nodes; ++u) {
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            edge_used[u].emplace_back(v, false);
+        }
+    }
+
+    while (!st.empty()) {
+        int u = st.top();
+
+        if (next_index[u] >= (int)edge_used[u].size()) {
+            path.push_back(u);
+            st.pop();
+        } else {
+            auto& [v, used] = edge_used[u][next_index[u]];
+            if (!used) {
+                used = true;
+                st.push(v);
+            }
+            next_index[u]++;
+        }
+    }
+
+    reverse(path.begin(), path.end());
+    return path;
+}
+
+vector<int> Graph::find_eulerian_circuit() {
+    if (!has_eulerian_circuit()) {
+        return {};
+    }
+
+    auto path = find_eulerian_path();
+    
+    if (path.empty() || path.front() != path.back()) {
+        return {};
+    }
+
+    return path;
+}
+
+bool Graph::has_eulerian_path() const {
+    int start_nodes = 0, end_nodes = 0;
+
+    for (int i = 0; i < num_nodes; ++i) {
+        int diff = DemiDegreExt[i] - DemiDegreInt[i];
+        
+        if (diff == 1) {
+            start_nodes++;
+        } else if (diff == -1) {
+            end_nodes++;
+        } else if (diff != 0) {
+            return false;
+        }
+    }
+
+    return (start_nodes == 0 && end_nodes == 0) || (start_nodes == 1 && end_nodes == 1);
+}
+
+bool Graph::has_eulerian_circuit() const {
+    for (int i = 0; i < num_nodes; ++i) {
+        if (DemiDegreExt[i] != DemiDegreInt[i]) {
+            return false;
+        }
+    }
+
+    auto [num_scc, scc_list] = find_scc();
+    return num_scc == 1 || (num_scc > 0 && scc_list[0].size() == num_nodes);
+}
+
+vector<int> Graph::find_hamiltonian_path() {
+    vector<int> path;
+    vector<bool> visited(num_nodes, false);
+    
+    for (int start = 0; start < num_nodes; ++start) {
+        path.push_back(start);
+        visited[start] = true;
+        
+        if (hamiltonian_path_util(path, visited, 1)) {
+            return path;
+        }
+        
+        path.pop_back();
+        visited[start] = false;
+    }
+    
+    return {};
+}
+
+bool Graph::hamiltonian_path_util(vector<int>& path, vector<bool>& visited, int count) {
+    if (count == num_nodes) {
+        return true;
+    }
+    
+    int last = path.back();
+    
+    for (int k = HeadSucc[last]; k < HeadSucc[last + 1]; ++k) {
+        int next = Succ[k];
+        
+        if (!visited[next]) {
+            visited[next] = true;
+            path.push_back(next);
+            
+            if (hamiltonian_path_util(path, visited, count + 1)) {
+                return true;
+            }
+            
+            // Backtrack
+            path.pop_back();
+            visited[next] = false;
+        }
+    }
+    
+    return false;
+}
+
+vector<int> Graph::find_hamiltonian_circuit() {
+    vector<int> path;
+    vector<bool> visited(num_nodes, false);
+    
+    path.push_back(0);
+    visited[0] = true;
+    
+    if (hamiltonian_circuit_util(path, visited, 1)) {
+        int last = path.back();
+        int first = path[0];
+        
+        bool has_edge = false;
+        for (int k = HeadSucc[last]; k < HeadSucc[last + 1]; ++k) {
+            if (Succ[k] == first) {
+                has_edge = true;
+                break;
+            }
+        }
+        
+        if (has_edge) {
+            path.push_back(first);
+            return path;
+        }
+    }
+    
+    return {};
+}
+
+bool Graph::hamiltonian_circuit_util(vector<int>& path, vector<bool>& visited, int count) {
+    if (count == num_nodes) {
+        return true;
+    }
+    
+    int last = path.back();
+    
+    for (int k = HeadSucc[last]; k < HeadSucc[last + 1]; ++k) {
+        int next = Succ[k];
+        
+        if (!visited[next]) {
+            visited[next] = true;
+            path.push_back(next);
+            
+            if (hamiltonian_circuit_util(path, visited, count + 1)) {
+                return true;
+            }
+            
+            path.pop_back();
+            visited[next] = false;
+        }
+    }
+    
+    return false;
+}
+
+bool Graph::has_hamiltonian_path() const {
+    
+    int total_edges = 0;
+    for (int deg : DemiDegreExt) {
+        total_edges += deg;
+    }
+    if (total_edges < num_nodes - 1) {
+        return false;
+    }
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        if (DemiDegreExt[i] == 0 && DemiDegreInt[i] == 0) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool Graph::has_hamiltonian_circuit() const {
+    if (!has_hamiltonian_path()) {
+        return false;
+    }
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        if (DemiDegreExt[i] + DemiDegreInt[i] < 2) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 } // namespace fastgraphfpms
