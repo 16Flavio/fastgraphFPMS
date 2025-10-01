@@ -812,4 +812,95 @@ Graph::dijkstra_bucket(int s, int t) const {
     return make_pair(dist, parent);
 }
 
+variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
+Graph::bellman_ford(int s, int t) const {
+    
+    if (s < 0 || s >= num_nodes) {
+        throw out_of_range("Source node out of range");
+    }
+    if (t != -1 && (t < 0 || t >= num_nodes)) {
+        throw out_of_range("Target node out of range");
+    }
+
+    vector<int> dist(num_nodes, numeric_limits<int>::max());
+    vector<int> parent(num_nodes, -1);
+    
+    dist[s] = 0;
+    parent[s] = s;
+    
+    for (int i = 0; i < num_nodes - 1; ++i) {
+        bool updated = false;
+        
+        for (int u = 0; u < num_nodes; ++u) {
+            if (dist[u] == numeric_limits<int>::max()) continue;
+            
+            for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+                int v = Succ[k];
+                int weight = WeightsSucc[k];
+                
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    parent[v] = u;
+                    updated = true;
+                }
+            }
+        }
+        
+        if (!updated) break;
+    }
+    
+    for (int u = 0; u < num_nodes; ++u) {
+        if (dist[u] == numeric_limits<int>::max()) continue;
+        
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            int weight = WeightsSucc[k];
+            
+            if (dist[u] + weight < dist[v]) {
+                throw runtime_error("Graph contains a negative weight cycle");
+            }
+        }
+    }
+    
+    if (t != -1) {
+        if (dist[t] == numeric_limits<int>::max()) {
+            return make_pair(-1, vector<int>()); 
+        }
+        
+        vector<int> path;
+        for (int cur = t; cur != s; cur = parent[cur]) {
+            path.push_back(cur);
+        }
+        path.push_back(s);
+        reverse(path.begin(), path.end());
+        
+        return make_pair(dist[t], path);
+    }
+    
+    return make_pair(dist, parent);
+}
+
+bool Graph::has_negative_cycle() const {
+    vector<int> dist(num_nodes, 0); 
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        for (int u = 0; u < num_nodes; ++u) {
+            for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+                int v = Succ[k];
+                int weight = WeightsSucc[k];
+                
+                if (dist[u] != numeric_limits<int>::max() && 
+                    dist[u] + weight < dist[v]) {
+                    if (i == num_nodes - 1) {
+                        return true;
+                    }
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+    }
+    
+    return false;
+}
+
 } // namespace fastgraphfpms

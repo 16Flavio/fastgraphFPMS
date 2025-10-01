@@ -44,6 +44,8 @@ public:
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra(int s, int t=-1) const;
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> sedgewick_vitter(int s, int t = -1) const;
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra_bucket(int s, int t = -1) const;
+    variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> bellman_ford(int s, int t = -1) const;
+    bool has_negative_cycle() const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

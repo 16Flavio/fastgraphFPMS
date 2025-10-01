@@ -164,3 +164,29 @@ class Graph:
                     Parent: List[int]
         """
         ...
+
+    def bellman_ford(self, s:int, t:int = -1) -> Union[Tuple[List[int], List[int]], Tuple[int, List[int]]]:
+        """
+        Retourne les distances depuis le noeud start ainsi que les parents de chaque noeud via Bellman.
+            Args:
+                s: int
+                t: int = -1
+            Return:
+                if t == -1:
+                    Dist: List[int]
+                    Parent: List[int]
+                else:
+                    Dist: int
+                    Parent: List[int]
+        """
+        ...
+
+    def has_negative_cycle(self) -> bool:
+        """
+        Retourne une variable booléenne si le graphe possède un cycle négatif.
+            Args:
+                /
+            Return:
+                Ans: bool
+        """
+        ...

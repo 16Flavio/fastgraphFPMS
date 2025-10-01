@@ -185,6 +185,18 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
     
         Renvoie deux vecteurs, un vecteur distance et un vecteur parent à l'aide de l'algorithme de dijkstra à buckets.
     
+        )pbdoc")
+        
+    .def("bellman_ford", &fastgraphfpms::Graph::bellman_ford, py::arg("s"), py::arg("t"), R"pbdoc(
+    
+        Renvoie deux vecteurs, un vecteur distance et un vecteur parent à l'aide de l'algorithme de Bellman.
+    
+        )pbdoc")
+
+    .def("has_negative_cycle", &fastgraphfpms::Graph::has_negative_cycle, R"pbdoc(
+        
+        Renvoie une variable booléenne si le graphe possède un cycle négatif.
+        
         )pbdoc");
     
     // Version
