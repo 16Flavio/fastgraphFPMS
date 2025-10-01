@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastgraphFPMS"
-version = "1.0.3"
+version = "1.0.4"
 description = "Fast Graph Algorithms Library implemented in C++"
 authors = [
     {name = "Flavio D.", email = "drogoflavio16@gmail.com"}
