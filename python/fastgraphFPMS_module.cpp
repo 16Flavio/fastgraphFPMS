@@ -13,23 +13,23 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
         Exemples d'utilisation:
             >>> import fastgraphFPMS as fg
+            >>> # Format matrice
             >>> graph = fg.Graph([[0, 1], [1, 0]])
-            >>> graph.bfs(0)
-            [0, 1]
+            >>> # Format listes d'adjacence
+            >>> head = [0, 1, 3]
+            >>> succ = [1, 0, 2]
+            >>> weights = [1, 1, 1]
+            >>> graph2 = fg.Graph(head, succ, weights)
 
     )pbdoc";
     
     py::class_<fastgraphfpms::Graph>(m, "Graph", R"pbdoc(
 
-        Représente un graphe avec une matrice d'adjacence.
+        Représente un graphe avec différentes structures de données.
         
         Cette classe permet de créer et manipuler des graphes, et d'exécuter
         divers algorithmes graphiques optimisés.
         
-        Args:
-            matrix: Matrice d'adjacence (liste de listes d'entiers)
-            filename: Chemin vers un fichier contenant la matrice
-
     )pbdoc")
     
     .def(py::init<>(), R"pbdoc(
@@ -55,15 +55,38 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> graph = Graph(matrix)
 
     )pbdoc")
-    
+        
+    .def(py::init<const vector<int>&, const vector<int>&, const vector<int>&>(), 
+         py::arg("head"), py::arg("succ"), py::arg("weights"),
+         R"pbdoc(
+
+        Crée un graphe à partir de listes d'adjacence (format CSR).
+        
+        Args:
+            head: Vecteur Head (indices de début pour chaque nœud)
+            succ: Vecteur Succ (successeurs de chaque nœud)
+            weights: Vecteur Weights (poids des arêtes)
+            
+        Example:
+            >>> head = [0, 2, 3, 5]    # 3 nœuds
+            >>> succ = [1, 2, 0, 1, 2] # successeurs
+            >>> weights = [1, 2, 1, 3, 1] # poids
+            >>> graph = Graph(head, succ, weights)
+
+    )pbdoc")
+
     .def(py::init<const string&>(), 
          py::arg("filename"),
          R"pbdoc(
 
         Crée un graphe à partir d'un fichier.
         
+        Le format est détecté automatiquement:
+        - Matrice: première ligne = nombre de nœuds, puis matrice
+        - Listes: chaque ligne = liste de paires (voisin poids) pour un nœud
+        
         Args:
-            filename: Chemin vers le fichier contenant la matrice
+            filename: Chemin vers le fichier contenant le graphe
             
         Example:
             >>> graph = Graph("mon_graphe.txt")
@@ -109,6 +132,19 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
         Args:
             filename: Chemin où sauvegarder le fichier
+
+    )pbdoc")
+
+    .def("save_to_file_adjacency_list", &fastgraphfpms::Graph::save_to_file_adjacency_list, 
+         py::arg("filename"), R"pbdoc(
+
+        Sauvegarde le graphe dans un fichier au format listes d'adjacence.
+        
+        Args:
+            filename: Chemin où sauvegarder le fichier
+            
+        Example:
+            >>> graph.save_to_file_adjacency_list("graphe_listes.txt")
 
     )pbdoc")
 
@@ -449,6 +485,42 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> classes = graph.get_color_classes()
             >>> for i, class_nodes in enumerate(classes):
             ...     print(f"Couleur {i}: {class_nodes}")
+
+    )pbdoc")
+    
+    .def("max_flow_ford_fulkerson", &fastgraphfpms::Graph::max_flow_ford_fulkerson, 
+        py::arg("source"), py::arg("sink"), R"pbdoc(
+
+        Calcule le flot maximum entre la source et le puits avec Ford-Fulkerson (DFS).
+        
+        Args:
+            source: Nœud source
+            sink: Nœud puits
+            
+        Returns:
+            int: Valeur du flot maximum
+            
+        Example:
+            >>> flow = graph.max_flow_ford_fulkerson(0, 5)
+            >>> print(f"Flot maximum: {flow}")
+
+    )pbdoc")
+
+    .def("max_flow_edmonds_karp", &fastgraphfpms::Graph::max_flow_edmonds_karp, 
+        py::arg("source"), py::arg("sink"), R"pbdoc(
+
+        Calcule le flot maximum entre la source et le puits avec Edmonds-Karp (BFS).
+        
+        Args:
+            source: Nœud source
+            sink: Nœud puits
+            
+        Returns:
+            int: Valeur du flot maximum
+            
+        Example:
+            >>> flow = graph.max_flow_edmonds_karp(0, 5)
+            >>> print(f"Flot maximum: {flow}")
 
     )pbdoc");
 

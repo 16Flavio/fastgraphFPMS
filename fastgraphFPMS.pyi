@@ -22,6 +22,17 @@ class Graph:
         """
         ...
     
+    def __init__(self, head: List[int], succ: List[int], weights: List[int]) -> None:
+        """
+        Crée un graphe à partir de listes d'adjacence (format CSR).
+        
+        Args:
+            head: Vecteur Head (indices de début pour chaque nœud)
+            succ: Vecteur Succ (successeurs de chaque nœud)  
+            weights: Vecteur Weights (poids des arêtes)
+        """
+        ...
+
     def __init__(self, filename: str) -> None:
         """
         Crée un graphe à partir d'un fichier.
@@ -46,6 +57,10 @@ class Graph:
     
     def save_to_file(self, filename: str) -> None:
         """Sauvegarde le graphe dans un fichier."""
+        ...
+
+    def save_to_file_adjacency_list(self, filename: str) -> None:
+        """Sauvegarde le graphe dans un fichier au format listes d'adjacence."""
         ...
 
     def print(self) -> None:
@@ -371,5 +386,31 @@ class Graph:
         
         Returns:
             Liste de listes de nœuds groupés par couleur
+        """
+        ...
+
+    def max_flow_ford_fulkerson(self, source: int, sink: int) -> int:
+        """
+        Calcule le flot maximum avec l'algorithme de Ford-Fulkerson (DFS).
+        
+        Args:
+            source: nœud source
+            sink: nœud puits
+            
+        Returns:
+            Valeur du flot maximum
+        """
+        ...
+
+    def max_flow_edmonds_karp(self, source: int, sink: int) -> int:
+        """
+        Calcule le flot maximum avec l'algorithme d'Edmonds-Karp (BFS).
+        
+        Args:
+            source: nœud source  
+            sink: nœud puits
+            
+        Returns:
+            Valeur du flot maximum
         """
         ...

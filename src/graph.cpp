@@ -12,6 +12,7 @@
 #include <numeric>
 #include <functional>
 #include <unordered_map>
+#include <sstream>
 
 namespace fastgraphfpms {
 
@@ -68,6 +69,36 @@ Graph::Graph(const vector<vector<int>>& matrix)
 
 }
 
+Graph::Graph(const vector<int>& head, const vector<int>& succ, const vector<int>& weights) 
+    : num_nodes(head.size() - 1), HeadSucc(head), Succ(succ), WeightsSucc(weights) {
+    
+    if (HeadSucc.empty() || HeadSucc.back() != (int)Succ.size()) {
+        throw invalid_argument("Invalid adjacency list format: HeadSucc must be consistent with Succ size");
+    }
+    
+    if (Succ.size() != WeightsSucc.size()) {
+        throw invalid_argument("Succ and WeightsSucc must have the same size");
+    }
+
+    DemiDegreExt.resize(num_nodes);
+    DemiDegreInt.resize(num_nodes, 0);
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        DemiDegreExt[i] = HeadSucc[i + 1] - HeadSucc[i];
+    }
+    
+    for (int i = 0; i < (int)Succ.size(); ++i) {
+        if (Succ[i] < 0 || Succ[i] >= num_nodes) {
+            throw invalid_argument("Invalid node index in Succ list");
+        }
+        DemiDegreInt[Succ[i]]++;
+    }
+    
+    compute_topo_order();
+    create_pred();
+}
+
+
 Graph::Graph(const string& filename) {
     load_from_file(filename);
 }
@@ -85,41 +116,43 @@ void Graph::load_from_file(const string& filename) {
     Pred.clear();
     WeightsPred.clear();
 
-    file >> num_nodes;
-
-    HeadSucc.resize(num_nodes);
-    int idx_Succ = 0, temp;
-    for (int i = 0; i < num_nodes; ++i) {
-        HeadSucc[i] = idx_Succ;
-        for (int j = 0; j < num_nodes; ++j) {
-            file >> temp;
-            if(temp != 0){
-                Succ.push_back(j);
-                WeightsSucc.push_back(temp);
-                idx_Succ++;
-            }
-        }
+    string line;
+    
+    if (!getline(file, line)) {
+        throw runtime_error("Empty file: " + filename);
     }
-    HeadSucc.push_back(idx_Succ);
+    
+    istringstream first_line(line);
+    int first_value;
+    first_line >> first_value;
+    
+    int second_value;
+    if (first_line >> second_value) {
+        file.seekg(0); 
+        load_adjacency_list_format(file);
+    } else {
+        file.seekg(0); 
+        load_matrix_format(file);
+    }
+    
     file.close();
 
+    // Initialiser les structures dérivées
     DemiDegreExt.resize(num_nodes);
     DemiDegreInt.resize(num_nodes);
 
-    //Demi degre Ext init
+    // Demi degre Ext init
     for(int i = 0; i < num_nodes; i++){
         DemiDegreExt[i] = HeadSucc[i+1] - HeadSucc[i];
     }
 
-    //Demi degre Int init
+    // Demi degre Int init
     for(int i = 0; i < (int)Succ.size(); i++){
         DemiDegreInt[Succ[i]]++;
     }
 
     compute_topo_order();
-
     create_pred();
-    
 }
 
 void Graph::create_pred(){
@@ -139,6 +172,83 @@ void Graph::create_pred(){
             WeightsPred[HeadPred[y]] = w;
         }
     }
+}
+
+void Graph::load_matrix_format(ifstream& file) {
+    file >> num_nodes;
+
+    HeadSucc.resize(num_nodes);
+    int idx_Succ = 0, temp;
+    for (int i = 0; i < num_nodes; ++i) {
+        HeadSucc[i] = idx_Succ;
+        for (int j = 0; j < num_nodes; ++j) {
+            file >> temp;
+            if(temp != 0){
+                Succ.push_back(j);
+                WeightsSucc.push_back(temp);
+                idx_Succ++;
+            }
+        }
+    }
+    HeadSucc.push_back(idx_Succ);
+}
+
+void Graph::load_adjacency_list_format(ifstream& file) {
+    string line;
+    int current_node = 0;
+    
+    vector<vector<pair<int, int>>> adjacency_list; 
+    
+    while (getline(file, line)) {
+        istringstream iss(line);
+        int neighbor, weight;
+        vector<pair<int, int>> neighbors;
+        
+        while (iss >> neighbor >> weight) {
+            neighbors.emplace_back(neighbor, weight);
+        }
+        
+        adjacency_list.push_back(neighbors);
+    }
+    
+    num_nodes = adjacency_list.size();
+    
+    HeadSucc.resize(num_nodes);
+    int idx_Succ = 0;
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        HeadSucc[i] = idx_Succ;
+        for (const auto& [neighbor, weight] : adjacency_list[i]) {
+            Succ.push_back(neighbor);
+            WeightsSucc.push_back(weight);
+            idx_Succ++;
+        }
+    }
+    HeadSucc.push_back(idx_Succ);
+}
+
+void Graph::save_to_file_adjacency_list(const string& filename) const {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        throw runtime_error("Cannot open file: " + filename);
+    }
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        int start = HeadSucc[i];
+        int end = HeadSucc[i + 1];
+        
+        for (int j = start; j < end; ++j) {
+            file << Succ[j] << " " << WeightsSucc[j];
+            if (j < end - 1) {
+                file << " ";
+            }
+        }
+        if (i < num_nodes - 1) {
+            file << "\n";
+        }
+    }
+    
+    file.close();
 }
 
 void Graph::compute_topo_order(){
@@ -607,7 +717,7 @@ pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
     return {res, mst};
 }
 
-variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(int s, int t) const {
+variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(const int& s, const int& t) const {
 
     if (s < 0 || s >= num_nodes) {
         throw out_of_range("Source node out of range");
@@ -659,7 +769,7 @@ variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(i
 }
 
 variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
-Graph::sedgewick_vitter(int s, int t) const {
+Graph::sedgewick_vitter(const int& s, const int& t) const {
     
     if (s < 0 || s >= num_nodes) {
         throw out_of_range("Source node out of range");
@@ -734,7 +844,7 @@ Graph::sedgewick_vitter(int s, int t) const {
 }
 
 variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
-Graph::dijkstra_bucket(int s, int t) const {
+Graph::dijkstra_bucket(const int& s, const int& t) const {
     
     if (s < 0 || s >= num_nodes) {
         throw out_of_range("Source node out of range");
@@ -821,7 +931,7 @@ Graph::dijkstra_bucket(int s, int t) const {
 }
 
 variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
-Graph::bellman_ford(int s, int t) const {
+Graph::bellman_ford(const int& s, const int& t) const {
     
     if (s < 0 || s >= num_nodes) {
         throw out_of_range("Source node out of range");
@@ -1475,7 +1585,7 @@ bool Graph::is_bipartite_coloring() const {
     return true;
 }
 
-bool Graph::is_k_colorable(int k) const {
+bool Graph::is_k_colorable(const int& k) const {
     if (k == 1) {
         for (int i = 0; i < num_nodes; i++) {
             if (DemiDegreExt[i] > 0 || DemiDegreInt[i] > 0) {
@@ -1545,6 +1655,127 @@ vector<vector<int>> Graph::get_color_classes() const {
     }
     
     return color_classes;
+}
+
+int Graph::max_flow_ford_fulkerson(int source, int sink) const {
+    if (source < 0 || source >= num_nodes || sink < 0 || sink >= num_nodes) {
+        throw out_of_range("Source or sink node out of range");
+    }
+    if (source == sink) {
+        throw invalid_argument("Source and sink must be different nodes");
+    }
+
+    vector<vector<int>> residual(num_nodes, vector<int>(num_nodes, 0));
+    
+    for (int u = 0; u < num_nodes; ++u) {
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            residual[u][v] += WeightsSucc[k]; 
+        }
+    }
+
+    vector<vector<int>> flow(num_nodes, vector<int>(num_nodes, 0));
+    int max_flow = 0;
+    
+    function<int(int, int, vector<bool>&, vector<int>&)> dfs = [&](int u, int min_capacity, vector<bool>& visited, vector<int>& path) -> int {
+        if (u == sink) {
+            return min_capacity;
+        }
+        
+        visited[u] = true;
+        path.push_back(u);
+        
+        for (int v = 0; v < num_nodes; ++v) {
+            if (!visited[v] && residual[u][v] > 0) {
+                int result = dfs(v, min(min_capacity, residual[u][v]), visited, path);
+                if (result > 0) {
+                    residual[u][v] -= result;
+                    residual[v][u] += result;
+                    flow[u][v] += result;
+                    flow[v][u] -= result; 
+                    return result;
+                }
+            }
+        }
+        
+        path.pop_back();
+        return 0;
+    };
+    
+    while (true) {
+        vector<bool> visited(num_nodes, false);
+        vector<int> path;
+        int path_flow = dfs(source, numeric_limits<int>::max(), visited, path);
+        
+        if (path_flow == 0) {
+            break;
+        }
+        
+        max_flow += path_flow;
+    }
+    
+    return max_flow;
+}
+
+int Graph::max_flow_edmonds_karp(int source, int sink) const {
+    if (source < 0 || source >= num_nodes || sink < 0 || sink >= num_nodes) {
+        throw out_of_range("Source or sink node out of range");
+    }
+    if (source == sink) {
+        throw invalid_argument("Source and sink must be different nodes");
+    }
+
+    vector<vector<int>> residual(num_nodes, vector<int>(num_nodes, 0));
+    
+    for (int u = 0; u < num_nodes; ++u) {
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            residual[u][v] += WeightsSucc[k];
+        }
+    }
+
+    vector<vector<int>> flow(num_nodes, vector<int>(num_nodes, 0));
+    int max_flow = 0;
+    
+    while (true) {
+        vector<int> parent(num_nodes, -1);
+        deque<int> q;
+        q.push_back(source);
+        parent[source] = source;
+        
+        while (!q.empty() && parent[sink] == -1) {
+            int u = q.front();
+            q.pop_front();
+            
+            for (int v = 0; v < num_nodes; ++v) {
+                if (parent[v] == -1 && residual[u][v] > 0) {
+                    parent[v] = u;
+                    q.push_back(v);
+                }
+            }
+        }
+
+        if (parent[sink] == -1) {
+            break;
+        }
+        
+        int path_flow = numeric_limits<int>::max();
+        for (int v = sink; v != source; v = parent[v]) {
+            int u = parent[v];
+            path_flow = min(path_flow, residual[u][v]);
+        }
+        
+        for (int v = sink; v != source; v = parent[v]) {
+            int u = parent[v];
+            residual[u][v] -= path_flow;
+            residual[v][u] += path_flow;
+            flow[u][v] += path_flow;
+        }
+        
+        max_flow += path_flow;
+    }
+    
+    return max_flow;
 }
 
 } // namespace fastgraphfpms
