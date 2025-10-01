@@ -99,10 +99,14 @@ def bfs(matrix, start):
 # print(mst)
 
 
-g5 = fg.Graph()
-g5.load_from_file("tests/input_10.txt")
-dist, par = g5.dijkstra(0, 7)
-print(dist)
-print(par)
+# g5 = fg.Graph()
+# g5.load_from_file("tests/input_10.txt")
+# dist, par = g5.dijkstra(0, 7)
+# print(dist)
+# print(par)
+
+g6 = fg.Graph()
+g6.load_from_file("tests/input_11.txt")
+g6.print()
 
 print('✅ Test réussi!')

@@ -109,29 +109,25 @@ void Graph::load_from_file(const string& filename) {
         throw runtime_error("Cannot open file: " + filename);
     }
 
-    HeadSucc.clear();
-    Succ.clear();
-    WeightsSucc.clear();
-    HeadPred.clear();
-    Pred.clear();
-    WeightsPred.clear();
-
-    string line;
+    streampos start_pos = file.tellg();
     
-    if (!getline(file, line)) {
+    string first_line;
+    if (!getline(file, first_line)) {
         throw runtime_error("Empty file: " + filename);
     }
     
-    istringstream first_line(line);
-    int first_value;
-    first_line >> first_value;
-    
-    int second_value;
-    if (first_line >> second_value) {
-        file.seekg(0); 
-        load_adjacency_list_format(file);
+    istringstream iss(first_line);
+    int node_count;
+    if (iss >> node_count) {
+        string rest;
+        if (iss >> rest) {
+            file.seekg(start_pos);
+            load_adjacency_list_format(file);
+        } else {
+            load_adjacency_list_format_explicit(file);
+        }
     } else {
-        file.seekg(0); 
+        file.seekg(start_pos);
         load_matrix_format(file);
     }
     
@@ -193,38 +189,113 @@ void Graph::load_matrix_format(ifstream& file) {
     HeadSucc.push_back(idx_Succ);
 }
 
-void Graph::load_adjacency_list_format(ifstream& file) {
-    string line;
-    int current_node = 0;
-    
-    vector<vector<pair<int, int>>> adjacency_list; 
-    
-    while (getline(file, line)) {
-        istringstream iss(line);
-        int neighbor, weight;
-        vector<pair<int, int>> neighbors;
-        
-        while (iss >> neighbor >> weight) {
-            neighbors.emplace_back(neighbor, weight);
-        }
-        
-        adjacency_list.push_back(neighbors);
-    }
-    
-    num_nodes = adjacency_list.size();
+void Graph::build_csr_from_adjacency_list(
+    const vector<vector<pair<int, int>>>& adj_list) {
     
     HeadSucc.resize(num_nodes);
     int idx_Succ = 0;
     
     for (int i = 0; i < num_nodes; ++i) {
-        HeadSucc[i] = idx_Succ;
-        for (const auto& [neighbor, weight] : adjacency_list[i]) {
+        HeadSucc[i] = idx_Succ;  
+        
+        for (const auto& [neighbor, weight] : adj_list[i]) {
+            if (neighbor < 0 || neighbor >= num_nodes) {
+                throw runtime_error("Indice de nœud invalide: " + to_string(neighbor));
+            }
             Succ.push_back(neighbor);
             WeightsSucc.push_back(weight);
             idx_Succ++;
         }
     }
-    HeadSucc.push_back(idx_Succ);
+    HeadSucc.push_back(idx_Succ); 
+}
+
+void Graph::load_adjacency_list_format(ifstream& file) {
+    string line;
+    vector<vector<pair<int, int>>> adjacency_list;
+    int line_number = 0;
+    
+    try {
+        while (getline(file, line)) {
+            line_number++;
+            
+            if (line.empty() || line[0] == '#') {
+                continue;
+            }
+            
+            istringstream iss(line);
+            int neighbor, weight;
+            vector<pair<int, int>> neighbors;
+            
+            while (iss >> neighbor >> weight) {
+                neighbors.emplace_back(neighbor, weight);
+            }
+            
+            if (neighbors.empty() && !line.empty()) {
+                cerr << "Avertissement: ligne " << line_number 
+                     << " ignorée (format invalide): " << line << endl;
+            } else {
+                adjacency_list.push_back(neighbors);
+            }
+        }
+    } catch (const exception& e) {
+        throw runtime_error("Erreur ligne " + to_string(line_number) + ": " + e.what());
+    }
+    
+    num_nodes = adjacency_list.size();
+    
+    if (num_nodes == 0) {
+        throw runtime_error("Aucune donnée valide trouvée dans le fichier");
+    }
+    
+    build_csr_from_adjacency_list(adjacency_list);
+}
+
+void Graph::load_adjacency_list_format_explicit(ifstream& file) {
+    string line;
+    
+    if (!getline(file, line)) {
+        throw runtime_error("Fichier vide");
+    }
+    
+    istringstream first_line(line);
+    int expected_nodes;
+    if (!(first_line >> expected_nodes)) {
+        throw runtime_error("Première ligne doit contenir le nombre de nœuds");
+    }
+    
+    vector<vector<pair<int, int>>> adjacency_list(expected_nodes);
+    int line_number = 1; 
+    
+    for (int i = 0; i < expected_nodes && getline(file, line); ++i, ++line_number) {
+        if (line.empty() || line[0] == '#') {
+            i--; 
+            continue;
+        }
+        
+        istringstream iss(line);
+        int neighbor, weight;
+        vector<pair<int, int>> neighbors;
+        
+        while (iss >> neighbor >> weight) {
+            if (neighbor < 0 || neighbor >= expected_nodes) {
+                throw runtime_error("Ligne " + to_string(line_number) + 
+                                  ": nœud invalide " + to_string(neighbor));
+            }
+            neighbors.emplace_back(neighbor, weight);
+        }
+        
+        adjacency_list[i] = neighbors;
+    }
+    
+    if (adjacency_list.size() != expected_nodes) {
+        throw runtime_error("Nombre de lignes insuffisant. Attendu: " + 
+                          to_string(expected_nodes) + ", trouvé: " + 
+                          to_string(adjacency_list.size()));
+    }
+    
+    num_nodes = expected_nodes;
+    build_csr_from_adjacency_list(adjacency_list);
 }
 
 void Graph::save_to_file_adjacency_list(const string& filename) const {
