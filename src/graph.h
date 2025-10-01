@@ -46,6 +46,9 @@ public:
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra_bucket(int s, int t = -1) const;
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> bellman_ford(int s, int t = -1) const;
     bool has_negative_cycle() const;
+    pair<vector<vector<int>>, vector<vector<int>>> floyd_warshall() const;
+    vector<vector<int>> get_shortest_paths_matrix() const; 
+    bool has_negative_cycle_floyd() const; 
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

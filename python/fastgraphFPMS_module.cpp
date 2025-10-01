@@ -197,7 +197,48 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
         
         Renvoie une variable booléenne si le graphe possède un cycle négatif.
         
-        )pbdoc");
+        )pbdoc")
+        
+    .def("floyd_warshall", &fastgraphfpms::Graph::floyd_warshall, R"pbdoc(
+
+        Calcule les plus courts chemins entre toutes les paires de nœuds.
+        
+        Returns:
+            tuple: (distances, next) où:
+                - distances: matrice des distances (list of lists)
+                - next: matrice pour reconstruire les chemins (list of lists)
+                
+        Example:
+            >>> dist, next = graph.floyd_warshall()
+            >>> print(f"Distance de 0 à 5: {dist[0][5]}")
+
+    )pbdoc")
+
+    .def("get_shortest_paths_matrix", &fastgraphfpms::Graph::get_shortest_paths_matrix, R"pbdoc(
+
+        Retourne la matrice des plus courtes distances entre toutes les paires.
+        
+        Returns:
+            list: Matrice des distances (list of lists)
+            
+        Example:
+            >>> dist_matrix = graph.get_shortest_paths_matrix()
+            >>> print(f"Distance de 0 à 5: {dist_matrix[0][5]}")
+
+    )pbdoc")
+
+    .def("has_negative_cycle_floyd", &fastgraphfpms::Graph::has_negative_cycle_floyd, R"pbdoc(
+
+        Vérifie si le graphe contient un cycle de poids négatif avec l'algorithme de Floyd-Warshall.
+        
+        Returns:
+            bool: True si un cycle négatif est détecté, False sinon
+            
+        Example:
+            >>> if graph.has_negative_cycle_floyd():
+            ...     print("Attention: cycle négatif détecté!")
+
+    )pbdoc");
     
     // Version
     #ifdef VERSION_INFO

@@ -608,6 +608,14 @@ pair<int, vector<tuple<int,int,int>>> Graph::kruskal() const {
 }
 
 variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(int s, int t) const {
+
+    if (s < 0 || s >= num_nodes) {
+        throw out_of_range("Source node out of range");
+    }
+    if (t != -1 && (t < 0 || t >= num_nodes)) {
+        throw out_of_range("Target node out of range");
+    }
+
     using P = pair<int,int>; 
 
     vector<int> dist(num_nodes, numeric_limits<int>::max());
@@ -897,6 +905,90 @@ bool Graph::has_negative_cycle() const {
                     dist[v] = dist[u] + weight;
                 }
             }
+        }
+    }
+    
+    return false;
+}
+
+pair<vector<vector<int>>, vector<vector<int>>> 
+Graph::floyd_warshall() const {
+    
+    vector<vector<int>> dist(num_nodes, vector<int>(num_nodes, numeric_limits<int>::max()));
+    vector<vector<int>> next(num_nodes, vector<int>(num_nodes, -1));
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        dist[i][i] = 0;
+        next[i][i] = i;
+    }
+    
+    for (int u = 0; u < num_nodes; ++u) {
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            int weight = WeightsSucc[k];
+            
+            dist[u][v] = weight;
+            next[u][v] = v;
+        }
+    }
+    
+    for (int k = 0; k < num_nodes; ++k) {
+        for (int i = 0; i < num_nodes; ++i) {
+            for (int j = 0; j < num_nodes; ++j) {
+                if (dist[i][k] != numeric_limits<int>::max() && 
+                    dist[k][j] != numeric_limits<int>::max()) {
+                    
+                    if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        next[i][j] = next[i][k];
+                    }
+                }
+            }
+        }
+    }
+    
+    return {dist, next};
+}
+
+vector<vector<int>> 
+Graph::get_shortest_paths_matrix() const {
+    
+    vector<vector<int>> dist(num_nodes, vector<int>(num_nodes, numeric_limits<int>::max()));
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        dist[i][i] = 0;
+    }
+    
+    for (int u = 0; u < num_nodes; ++u) {
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            int weight = WeightsSucc[k];
+            dist[u][v] = weight;
+        }
+    }
+    
+    for (int k = 0; k < num_nodes; ++k) {
+        for (int i = 0; i < num_nodes; ++i) {
+            if (dist[i][k] == numeric_limits<int>::max()) continue;
+            
+            for (int j = 0; j < num_nodes; ++j) {
+                if (dist[k][j] != numeric_limits<int>::max() && 
+                    dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+    
+    return dist;
+}
+
+bool Graph::has_negative_cycle_floyd() const {
+    auto dist = get_shortest_paths_matrix();
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        if (dist[i][i] < 0) {
+            return true;
         }
     }
     

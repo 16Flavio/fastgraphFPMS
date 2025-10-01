@@ -190,3 +190,44 @@ class Graph:
                 Ans: bool
         """
         ...
+
+    def floyd_warshall(self) -> Tuple[List[List[int]], List[List[int]]]:
+        """
+        Calcule les plus courts chemins entre toutes les paires de nœuds.
+        
+        Returns:
+            Tuple contenant:
+            - distances: matrice des distances entre toutes les paires de nœuds
+            - next: matrice pour reconstruire les chemins
+            
+        Example:
+            >>> dist, next = graph.floyd_warshall()
+            >>> distance_0_5 = dist[0][5]
+        """
+        ...
+
+    def get_shortest_paths_matrix(self) -> List[List[int]]:
+        """
+        Retourne la matrice des plus courtes distances entre toutes les paires.
+        
+        Returns:
+            Matrice carrée où l'élément [i][j] représente la distance de i à j
+            
+        Example:
+            >>> dist_matrix = graph.get_shortest_paths_matrix()
+            >>> print(f"Distance de 0 à 5: {dist_matrix[0][5]}")
+        """
+        ...
+
+    def has_negative_cycle_floyd(self) -> bool:
+        """
+        Détecte les cycles négatifs avec l'algorithme de Floyd-Warshall.
+        
+        Returns:
+            True si un cycle négatif est présent, False sinon
+            
+        Example:
+            >>> if graph.has_negative_cycle_floyd():
+            ...     print("Cycle négatif détecté!")
+        """
+        ...
