@@ -354,8 +354,104 @@ PYBIND11_MODULE(fastgraphFPMS, m) {
             >>> if graph.has_hamiltonian_circuit():
             ...     print("Le graphe pourrait avoir un cycle hamiltonien")
 
-    )pbdoc");
+    )pbdoc")
     
+    .def("greedy_coloring", &fastgraphfpms::Graph::greedy_coloring, R"pbdoc(
+
+        Colorie le graphe en utilisant l'algorithme glouton.
+        
+        Returns:
+            list: Vecteur où l'élément i est la couleur du nœud i
+            
+        Example:
+            >>> coloring = graph.greedy_coloring()
+            >>> print(f"Coloration: {coloring}")
+
+    )pbdoc")
+
+    .def("welsh_powell_coloring", &fastgraphfpms::Graph::welsh_powell_coloring, R"pbdoc(
+
+        Colorie le graphe en utilisant l'algorithme de Welsh-Powell.
+        
+        Returns:
+            list: Vecteur où l'élément i est la couleur du nœud i
+            
+        Example:
+            >>> coloring = graph.welsh_powell_coloring()
+            >>> print(f"Coloration: {coloring}")
+
+    )pbdoc")
+
+    .def("dsatur_coloring", &fastgraphfpms::Graph::dsatur_coloring, R"pbdoc(
+
+        Colorie le graphe en utilisant l'algorithme DSATUR (Degree of SATuration).
+        
+        Returns:
+            list: Vecteur où l'élément i est la couleur du nœud i
+            
+        Example:
+            >>> coloring = graph.dsatur_coloring()
+            >>> print(f"Coloration: {coloring}")
+
+    )pbdoc")
+
+    .def("chromatic_number", &fastgraphfpms::Graph::chromatic_number, R"pbdoc(
+
+        Retourne le nombre chromatique du graphe (nombre minimum de couleurs nécessaires).
+        
+        Returns:
+            int: Nombre chromatique
+            
+        Example:
+            >>> chi = graph.chromatic_number()
+            >>> print(f"Nombre chromatique: {chi}")
+
+    )pbdoc")
+
+    .def("is_bipartite_coloring", &fastgraphfpms::Graph::is_bipartite_coloring, R"pbdoc(
+
+        Vérifie si le graphe est biparti (2-colorable).
+        
+        Returns:
+            bool: True si le graphe est biparti
+            
+        Example:
+            >>> if graph.is_bipartite_coloring():
+            ...     print("Le graphe est biparti")
+
+    )pbdoc")
+
+    .def("is_k_colorable", &fastgraphfpms::Graph::is_k_colorable, 
+        py::arg("k"), R"pbdoc(
+
+        Vérifie si le graphe est k-colorable.
+        
+        Args:
+            k: Nombre de couleurs
+            
+        Returns:
+            bool: True si le graphe est k-colorable
+            
+        Example:
+            >>> if graph.is_k_colorable(3):
+            ...     print("Le graphe est 3-colorable")
+
+    )pbdoc")
+
+    .def("get_color_classes", &fastgraphfpms::Graph::get_color_classes, R"pbdoc(
+
+        Retourne les classes de couleur après coloration.
+        
+        Returns:
+            list: Liste de listes, où chaque sous-liste contient les nœuds d'une couleur
+            
+        Example:
+            >>> classes = graph.get_color_classes()
+            >>> for i, class_nodes in enumerate(classes):
+            ...     print(f"Couleur {i}: {class_nodes}")
+
+    )pbdoc");
+
     // Version
     #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

@@ -307,3 +307,69 @@ class Graph:
             True si les conditions nécessaires sont satisfaites
         """
         ...
+    
+    def greedy_coloring(self) -> List[int]:
+        """
+        Coloration gloutonne du graphe.
+        
+        Returns:
+            Liste où l'index est le nœud et la valeur est sa couleur
+        """
+        ...
+
+    def welsh_powell_coloring(self) -> List[int]:
+        """
+        Coloration par l'algorithme de Welsh-Powell.
+        
+        Returns:
+            Liste où l'index est le nœud et la valeur est sa couleur
+        """
+        ...
+
+    def dsatur_coloring(self) -> List[int]:
+        """
+        Coloration par l'algorithme DSATUR (basé sur la saturation).
+        
+        Returns:
+            Liste où l'index est le nœud et la valeur est sa couleur
+        """
+        ...
+
+    def chromatic_number(self) -> int:
+        """
+        Retourne le nombre chromatique du graphe.
+        
+        Returns:
+            Nombre minimum de couleurs nécessaires
+        """
+        ...
+
+    def is_bipartite_coloring(self) -> bool:
+        """
+        Vérifie si le graphe est biparti (2-colorable).
+        
+        Returns:
+            True si le graphe est biparti
+        """
+        ...
+
+    def is_k_colorable(self, k: int) -> bool:
+        """
+        Vérifie si le graphe est k-colorable.
+        
+        Args:
+            k: nombre de couleurs
+            
+        Returns:
+            True si le graphe est k-colorable
+        """
+        ...
+
+    def get_color_classes(self) -> List[List[int]]:
+        """
+        Retourne les classes de couleur après coloration.
+        
+        Returns:
+            Liste de listes de nœuds groupés par couleur
+        """
+        ...

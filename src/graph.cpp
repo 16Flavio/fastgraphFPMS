@@ -1239,4 +1239,312 @@ bool Graph::has_hamiltonian_circuit() const {
     return true;
 }
 
+vector<int> Graph::greedy_coloring() const {
+    vector<int> color(num_nodes, -1); 
+    vector<bool> available(num_nodes, false); 
+    
+    color[0] = 0;
+    
+    for (int u = 1; u < num_nodes; u++) {
+        fill(available.begin(), available.end(), false);
+        
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; k++) {
+            int neighbor = Succ[k];
+            if (color[neighbor] != -1) {
+                available[color[neighbor]] = true;
+            }
+        }
+        
+        int cr;
+        for (cr = 0; cr < num_nodes; cr++) {
+            if (!available[cr]) {
+                break;
+            }
+        }
+        
+        color[u] = cr;
+    }
+    
+    return color;
+}
+
+vector<int> Graph::welsh_powell_coloring() const {
+    vector<int> color(num_nodes, -1);
+    vector<int> degree(num_nodes, 0);
+    vector<int> order(num_nodes);
+    
+    for (int i = 0; i < num_nodes; i++) {
+        degree[i] = DemiDegreExt[i] + DemiDegreInt[i];
+        order[i] = i;
+    }
+    
+    sort(order.begin(), order.end(), [&](int a, int b) {
+        return degree[a] > degree[b];
+    });
+    
+    int current_color = 0;
+    
+    while (true) {
+        int next_uncolored = -1;
+        for (int i = 0; i < num_nodes; i++) {
+            if (color[order[i]] == -1) {
+                next_uncolored = order[i];
+                break;
+            }
+        }
+        
+        if (next_uncolored == -1) break;
+        
+        color[next_uncolored] = current_color;
+        
+        vector<bool> can_color(num_nodes, true);
+        
+        for (int k = HeadSucc[next_uncolored]; k < HeadSucc[next_uncolored + 1]; k++) {
+            can_color[Succ[k]] = false;
+        }
+        for (int k = HeadPred[next_uncolored]; k < HeadPred[next_uncolored + 1]; k++) {
+            can_color[Pred[k]] = false;
+        }
+        
+        for (int i = 0; i < num_nodes; i++) {
+            int node = order[i];
+            if (color[node] == -1 && can_color[node]) {
+                bool conflict = false;
+                for (int k = HeadSucc[node]; k < HeadSucc[node + 1]; k++) {
+                    if (color[Succ[k]] == current_color) {
+                        conflict = true;
+                        break;
+                    }
+                }
+                if (!conflict) {
+                    for (int k = HeadPred[node]; k < HeadPred[node + 1]; k++) {
+                        if (color[Pred[k]] == current_color) {
+                            conflict = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!conflict) {
+                    color[node] = current_color;
+                }
+            }
+        }
+        
+        current_color++;
+    }
+    
+    return color;
+}
+
+vector<int> Graph::dsatur_coloring() const {
+    vector<int> color(num_nodes, -1);
+    vector<int> degree(num_nodes, 0);
+    vector<set<int>> adjacent_colors(num_nodes);
+    vector<int> saturation(num_nodes, 0); 
+    
+    for (int i = 0; i < num_nodes; i++) {
+        degree[i] = DemiDegreExt[i] + DemiDegreInt[i];
+    }
+    
+    int max_degree_node = 0;
+    for (int i = 1; i < num_nodes; i++) {
+        if (degree[i] > degree[max_degree_node]) {
+            max_degree_node = i;
+        }
+    }
+    
+    color[max_degree_node] = 0;
+    
+    for (int k = HeadSucc[max_degree_node]; k < HeadSucc[max_degree_node + 1]; k++) {
+        adjacent_colors[Succ[k]].insert(0);
+        saturation[Succ[k]] = adjacent_colors[Succ[k]].size();
+    }
+    for (int k = HeadPred[max_degree_node]; k < HeadPred[max_degree_node + 1]; k++) {
+        adjacent_colors[Pred[k]].insert(0);
+        saturation[Pred[k]] = adjacent_colors[Pred[k]].size();
+    }
+    
+    for (int count = 1; count < num_nodes; count++) {
+        int next_node = -1;
+        int max_saturation = -1;
+        int max_degree = -1;
+        
+        for (int i = 0; i < num_nodes; i++) {
+            if (color[i] == -1) {
+                if (saturation[i] > max_saturation || 
+                    (saturation[i] == max_saturation && degree[i] > max_degree)) {
+                    max_saturation = saturation[i];
+                    max_degree = degree[i];
+                    next_node = i;
+                }
+            }
+        }
+        
+        if (next_node == -1) break;
+        
+        vector<bool> used_colors(num_nodes, false);
+        for (int k = HeadSucc[next_node]; k < HeadSucc[next_node + 1]; k++) {
+            if (color[Succ[k]] != -1) {
+                used_colors[color[Succ[k]]] = true;
+            }
+        }
+        for (int k = HeadPred[next_node]; k < HeadPred[next_node + 1]; k++) {
+            if (color[Pred[k]] != -1) {
+                used_colors[color[Pred[k]]] = true;
+            }
+        }
+        
+        int cr;
+        for (cr = 0; cr < num_nodes; cr++) {
+            if (!used_colors[cr]) {
+                break;
+            }
+        }
+        
+        color[next_node] = cr;
+        
+        for (int k = HeadSucc[next_node]; k < HeadSucc[next_node + 1]; k++) {
+            int neighbor = Succ[k];
+            if (color[neighbor] == -1) {
+                adjacent_colors[neighbor].insert(cr);
+                saturation[neighbor] = adjacent_colors[neighbor].size();
+            }
+        }
+        for (int k = HeadPred[next_node]; k < HeadPred[next_node + 1]; k++) {
+            int neighbor = Pred[k];
+            if (color[neighbor] == -1) {
+                adjacent_colors[neighbor].insert(cr);
+                saturation[neighbor] = adjacent_colors[neighbor].size();
+            }
+        }
+    }
+    
+    return color;
+}
+
+int Graph::chromatic_number() const {
+    auto coloring = dsatur_coloring(); 
+    int max_color = 0;
+    for (int c : coloring) {
+        if (c > max_color) {
+            max_color = c;
+        }
+    }
+    return max_color + 1; 
+}
+
+bool Graph::is_bipartite_coloring() const {
+    vector<int> color(num_nodes, -1);
+    
+    for (int start = 0; start < num_nodes; start++) {
+        if (color[start] == -1) {
+            deque<int> q;
+            q.push_back(start);
+            color[start] = 0;
+            
+            while (!q.empty()) {
+                int u = q.front();
+                q.pop_front();
+                
+                for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; k++) {
+                    int v = Succ[k];
+                    
+                    if (color[v] == -1) {
+                        color[v] = 1 - color[u];
+                        q.push_back(v);
+                    } else if (color[v] == color[u]) {
+                        return false;
+                    }
+                }
+                
+                for (int k = HeadPred[u]; k < HeadPred[u + 1]; k++) {
+                    int v = Pred[k];
+                    
+                    if (color[v] == -1) {
+                        color[v] = 1 - color[u];
+                        q.push_back(v);
+                    } else if (color[v] == color[u]) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+bool Graph::is_k_colorable(int k) const {
+    if (k == 1) {
+        for (int i = 0; i < num_nodes; i++) {
+            if (DemiDegreExt[i] > 0 || DemiDegreInt[i] > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    if (k == 2) {
+        return is_bipartite_coloring();
+    }
+    
+    if (k >= num_nodes) {
+        return true; 
+    }
+    
+    vector<int> color(num_nodes, -1);
+    return k_color_util(0, color, k);
+}
+
+bool Graph::k_color_util(int node, vector<int>& color, int k) const {
+    if (node == num_nodes) {
+        return true;
+    }
+    
+    for (int c = 0; c < k; c++) {
+        if (is_safe_color(node, color, c)) {
+            color[node] = c;
+            
+            if (k_color_util(node + 1, color, k)) {
+                return true;
+            }
+            
+            color[node] = -1; 
+        }
+    }
+    
+    return false;
+}
+
+bool Graph::is_safe_color(int node, const vector<int>& color, int c) const {
+    for (int k = HeadSucc[node]; k < HeadSucc[node + 1]; k++) {
+        int neighbor = Succ[k];
+        if (color[neighbor] == c) {
+            return false;
+        }
+    }
+    
+    for (int k = HeadPred[node]; k < HeadPred[node + 1]; k++) {
+        int neighbor = Pred[k];
+        if (color[neighbor] == c) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+vector<vector<int>> Graph::get_color_classes() const {
+    auto coloring = dsatur_coloring();
+    int num_colors = chromatic_number();
+    
+    vector<vector<int>> color_classes(num_colors);
+    for (int i = 0; i < num_nodes; i++) {
+        color_classes[coloring[i]].push_back(i);
+    }
+    
+    return color_classes;
+}
+
 } // namespace fastgraphfpms
