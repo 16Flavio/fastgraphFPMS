@@ -10,6 +10,8 @@
 #include <map>
 #include <deque>
 #include <numeric>
+#include <functional>
+#include <unordered_map>
 
 namespace fastgraphfpms {
 
@@ -645,6 +647,81 @@ variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> Graph::dijkstra(i
         }
     }
 
+    return make_pair(dist, parent);
+}
+
+variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
+Graph::sedgewick_vitter(int s, int t) const {
+    
+    if (s < 0 || s >= num_nodes) {
+        throw out_of_range("Source node out of range");
+    }
+    if (t != -1 && (t < 0 || t >= num_nodes)) {
+        throw out_of_range("Target node out of range");
+    }
+
+    vector<int> dist(num_nodes, numeric_limits<int>::max());
+    vector<int> parent(num_nodes, -1);
+    vector<bool> computed(num_nodes, false);
+    
+    function<int(int)> dfs_in = [&](int u) -> int {
+        if (computed[u]) {
+            return dist[u];
+        }
+        
+        computed[u] = true;
+        
+        if (u == s) {
+            dist[u] = 0;
+            parent[u] = u;
+            return 0;
+        }
+        
+        int min_dist = numeric_limits<int>::max();
+        int best_pred = -1;
+        
+        for (int k = HeadPred[u]; k < HeadPred[u + 1]; ++k) {
+            int pred = Pred[k];
+            int weight = WeightsPred[k];
+            
+            int pred_dist = dfs_in(pred);
+            
+            if (pred_dist != numeric_limits<int>::max() && 
+                pred_dist + weight < min_dist) {
+                min_dist = pred_dist + weight;
+                best_pred = pred;
+            }
+        }
+        
+        if (min_dist != numeric_limits<int>::max()) {
+            dist[u] = min_dist;
+            parent[u] = best_pred;
+        }
+        
+        return dist[u];
+    };
+    
+    if (t != -1) {
+        int target_dist = dfs_in(t);
+        
+        if (target_dist == numeric_limits<int>::max()) {
+            return make_pair(-1, vector<int>()); 
+        }
+        
+        vector<int> path;
+        for (int cur = t; cur != s; cur = parent[cur]) {
+            path.push_back(cur);
+        }
+        path.push_back(s);
+        reverse(path.begin(), path.end());
+        
+        return make_pair(target_dist, path);
+    }
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        dfs(i);
+    }
+    
     return make_pair(dist, parent);
 }
 
