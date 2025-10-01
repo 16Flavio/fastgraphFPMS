@@ -148,3 +148,19 @@ class Graph:
                     Parent: List[int]
         """
         ...
+
+    def dijkstra_bucket(self, s:int, t: int = -1) -> Union[Tuple[List[int], List[int]], Tuple[int, List[int]]]:
+        """
+        Retourne les distances depuis le noeud start ainsi que les parents de chaque noeud via Dijkstra à bucket.
+            Args:
+                s: int
+                t: int = -1
+            Return:
+                if t == -1:
+                    Dist: List[int]
+                    Parent: List[int]
+                else:
+                    Dist: int
+                    Parent: List[int]
+        """
+        ...

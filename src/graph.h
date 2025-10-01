@@ -43,6 +43,7 @@ public:
     pair<int, vector<tuple<int,int,int>>> kruskal() const;
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra(int s, int t=-1) const;
     variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> sedgewick_vitter(int s, int t = -1) const;
+    variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> dijkstra_bucket(int s, int t = -1) const;
     pair<vector<int>,vector<int>> bfs(const int& start) const;
     pair<vector<int>,vector<int>> dfs(const int& start) const;
     

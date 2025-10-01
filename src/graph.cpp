@@ -725,4 +725,91 @@ Graph::sedgewick_vitter(int s, int t) const {
     return make_pair(dist, parent);
 }
 
+variant<pair<vector<int>, vector<int>>, pair<int,vector<int>>> 
+Graph::dijkstra_bucket(int s, int t) const {
+    
+    if (s < 0 || s >= num_nodes) {
+        throw out_of_range("Source node out of range");
+    }
+    if (t != -1 && (t < 0 || t >= num_nodes)) {
+        throw out_of_range("Target node out of range");
+    }
+
+    int max_weight = 0;
+    for (int w : WeightsSucc) {
+        if (w > max_weight) {
+            max_weight = w;
+        }
+    }
+
+    if (max_weight == 0) max_weight = 1;
+
+    vector<int> dist(num_nodes, numeric_limits<int>::max());
+    vector<int> parent(num_nodes, -1);
+    vector<bool> visited(num_nodes, false);
+    
+    vector<deque<int>> buckets(max_weight * num_nodes + 1);
+    
+    dist[s] = 0;
+    parent[s] = s;
+    buckets[0].push_back(s);
+    
+    int current_bucket = 0;
+    int nodes_processed = 0;
+    
+    while (nodes_processed < num_nodes && current_bucket < (int)buckets.size()) {
+        
+        if (buckets[current_bucket].empty()) {
+            current_bucket++;
+            continue;
+        }
+        
+        int u = buckets[current_bucket].front();
+        buckets[current_bucket].pop_front();
+        
+        if (visited[u]) continue;
+        visited[u] = true;
+        nodes_processed++;
+        
+        if (t != -1 && u == t) {
+            break;
+        }
+        
+        for (int k = HeadSucc[u]; k < HeadSucc[u + 1]; ++k) {
+            int v = Succ[k];
+            int weight = WeightsSucc[k];
+            
+            if (visited[v]) continue;
+            
+            int new_dist = dist[u] + weight;
+            
+            if (new_dist < dist[v]) {
+                dist[v] = new_dist;
+                parent[v] = u;
+                
+                if (new_dist < (int)buckets.size()) {
+                    buckets[new_dist].push_back(v);
+                }
+            }
+        }
+    }
+    
+    if (t != -1) {
+        if (dist[t] == numeric_limits<int>::max()) {
+            return make_pair(-1, vector<int>()); 
+        }
+        
+        vector<int> path;
+        for (int cur = t; cur != s; cur = parent[cur]) {
+            path.push_back(cur);
+        }
+        path.push_back(s);
+        reverse(path.begin(), path.end());
+        
+        return make_pair(dist[t], path);
+    }
+    
+    return make_pair(dist, parent);
+}
+
 } // namespace fastgraphfpms
