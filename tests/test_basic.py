@@ -107,6 +107,7 @@ def bfs(matrix, start):
 
 g6 = fg.Graph()
 g6.load_from_file("tests/input_11.txt")
-g6.print()
+
+print(g6.max_flow_edmonds_karp(0, 5))
 
 print('✅ Test réussi!')

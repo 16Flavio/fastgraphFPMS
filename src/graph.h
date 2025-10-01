@@ -10,6 +10,14 @@
 #include <limits>
 #include <tuple>
 #include <variant>
+#include <map>          
+#include <fstream>       
+#include <functional>    
+#include <unordered_map>
+#include <sstream>       
+#include <set>           
+#include <deque>         
+#include <numeric>       
 
 using namespace std;
 
@@ -22,9 +30,12 @@ private:
     vector<int> DemiDegreInt, DemiDegreExt;
 
     void load_matrix_format(ifstream& file);
-    void build_csr_from_adjacency_list(const vector<vector<pair<int, int>>>& adj_list);
+    void build_csr_from_adjacency_map(const map<int, vector<pair<int, int>>>& adj_map);
     void load_adjacency_list_format(ifstream& file);
     void load_adjacency_list_format_explicit(ifstream& file);
+
+    void load_three_lists_from_lines(const vector<string>& lines);
+    static vector<int> parse_int_line(const string& line);
 
     void create_pred();
     void compute_topo_order();

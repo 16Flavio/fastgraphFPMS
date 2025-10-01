@@ -98,9 +98,49 @@ Graph::Graph(const vector<int>& head, const vector<int>& succ, const vector<int>
     create_pred();
 }
 
-
 Graph::Graph(const string& filename) {
     load_from_file(filename);
+}
+
+vector<int> Graph::parse_int_line(const string& line) {
+    istringstream iss(line);
+    vector<int> tokens;
+    int x;
+    while (iss >> x) tokens.push_back(x);
+    return tokens;
+}
+
+void Graph::load_three_lists_from_lines(const vector<string>& lines) {
+    if (lines.size() < 3) throw runtime_error("Expected at least 3 lines for three-list format");
+
+
+    vector<int> head = parse_int_line(lines[0]);
+    vector<int> succ = parse_int_line(lines[1]);
+    vector<int> weights = parse_int_line(lines[2]);
+
+
+    if (head.size() < 2) throw runtime_error("HeadSucc must contain at least two entries (num_nodes + 1)");
+    if (head.back() != (int)succ.size()) throw runtime_error("HeadSucc.back() must equal Succ.size()");
+    if (succ.size() != weights.size()) throw runtime_error("Succ and WeightsSucc must have same length");
+
+
+    num_nodes = (int)head.size() - 1;
+    HeadSucc = move(head);
+    Succ = move(succ);
+    WeightsSucc = move(weights);
+
+
+    DemiDegreExt.assign(num_nodes, 0);
+    DemiDegreInt.assign(num_nodes, 0);
+
+
+    for (int i = 0; i < num_nodes; ++i) {
+        DemiDegreExt[i] = HeadSucc[i + 1] - HeadSucc[i];
+    }
+    for (int i = 0; i < (int)Succ.size(); ++i) {
+        if (Succ[i] < 0 || Succ[i] >= num_nodes) throw runtime_error("Succ contains invalid node index");
+        DemiDegreInt[Succ[i]]++;
+    }
 }
 
 void Graph::load_from_file(const string& filename) {
@@ -109,71 +149,145 @@ void Graph::load_from_file(const string& filename) {
         throw runtime_error("Cannot open file: " + filename);
     }
 
-    HeadSucc.clear();
-    Succ.clear();
-    WeightsSucc.clear();
-    HeadPred.clear();
-    Pred.clear();
-    WeightsPred.clear();
-
-    streampos start_pos = file.tellg();
-    
-    string first_line;
-    if (!getline(file, first_line)) {
-        throw runtime_error("Empty file: " + filename);
+    vector<string> lines;
+    string raw;
+    while (getline(file, raw)) {
+        bool nonspace = false;
+        for (char c : raw) if (!isspace((unsigned char)c)) { nonspace = true; break; }
+        if (nonspace) lines.push_back(raw);
     }
-    
-    istringstream iss(first_line);
-    int potential_node_count;
-    
-    if (iss >> potential_node_count) {
-        string remaining;
-        if (iss >> remaining) {
-            file.seekg(start_pos);
-            load_adjacency_list_format(file);
-        } else {
-            load_adjacency_list_format_explicit(file);
+
+    if (lines.empty()) throw runtime_error("Empty file: " + filename);
+
+    try {
+        {
+            vector<int> h = parse_int_line(lines[0]);
+            vector<int> s = (lines.size() > 1 ? parse_int_line(lines[1]) : vector<int>());
+            vector<int> w = (lines.size() > 2 ? parse_int_line(lines[2]) : vector<int>());
+            if (!h.empty() && !s.empty() && !w.empty() && h.back() == (int)s.size() && s.size() == w.size()) {
+                HeadSucc.clear(); Succ.clear(); WeightsSucc.clear(); HeadPred.clear(); Pred.clear(); WeightsPred.clear();
+                load_three_lists_from_lines(lines);
+                goto POST_PROCESS_LOAD;
+            }
         }
-    } else {
-        // Format matrice
-        file.seekg(start_pos);
-        load_matrix_format(file);
-    }
-    
-    file.close();
-
-    DemiDegreExt.resize(num_nodes);
-    DemiDegreInt.resize(num_nodes);
-
-    for(int i = 0; i < num_nodes; i++){
-        DemiDegreExt[i] = HeadSucc[i+1] - HeadSucc[i];
+    } catch (...) {
+        
     }
 
-    for(int i = 0; i < (int)Succ.size(); i++){
-        DemiDegreInt[Succ[i]]++;
+    {
+        vector<int> first_tokens = parse_int_line(lines[0]);
+        if (first_tokens.size() == 1) {
+            int N = first_tokens[0];
+            long long cnt = 0;
+            for (size_t i = 1; i < lines.size(); ++i) {
+                cnt += parse_int_line(lines[i]).size();
+            }
+            if (cnt >= (long long)N * N) {
+                HeadSucc.clear(); Succ.clear(); WeightsSucc.clear(); HeadPred.clear(); Pred.clear(); WeightsPred.clear();
+
+                num_nodes = N;
+                HeadSucc.resize(num_nodes);
+                int idx_Succ = 0;
+
+                vector<int> nums; nums.reserve(N*N);
+                for (size_t i = 1; i < lines.size() && (int)nums.size() < N*N; ++i) {
+                    vector<int> row = parse_int_line(lines[i]);
+                    for (int v : row) {
+                        if ((int)nums.size() < N*N) nums.push_back(v);
+                    }
+                }
+
+                if ((int)nums.size() < N*N) throw runtime_error("Not enough matrix values");
+
+                for (int i = 0; i < num_nodes; ++i) {
+                    HeadSucc[i] = idx_Succ;
+                    for (int j = 0; j < num_nodes; ++j) {
+                        int temp = nums[i * num_nodes + j];
+                        if (temp != 0) {
+                            Succ.push_back(j);
+                            WeightsSucc.push_back(temp);
+                            idx_Succ++;
+                        }
+                    }
+                }
+                HeadSucc.push_back(idx_Succ);
+                goto POST_PROCESS_LOAD;
+            }
+        }
+    }
+
+    {
+        vector<int> first_tokens = parse_int_line(lines[0]);
+        if (first_tokens.size() == 1) {
+            int declared_N = first_tokens[0];
+            vector<int> all;
+            for (size_t i = 1; i < lines.size(); ++i) {
+                vector<int> t = parse_int_line(lines[i]);
+                all.insert(all.end(), t.begin(), t.end());
+            }
+            if (!all.empty() && all.size() % 3 == 0) {
+                map<int, vector<pair<int,int>>> temp_adjacency;
+                for (size_t i = 0; i + 2 < all.size(); i += 3) {
+                    int src = all[i], dst = all[i+1], w = all[i+2];
+                    temp_adjacency[src].emplace_back(dst, w);
+                }
+                num_nodes = declared_N;
+                HeadSucc.clear(); Succ.clear(); WeightsSucc.clear(); HeadPred.clear(); Pred.clear(); WeightsPred.clear();
+                build_csr_from_adjacency_map(temp_adjacency);
+                goto POST_PROCESS_LOAD;
+            }
+        }
+    }
+
+    {
+        map<int, vector<pair<int,int>>> temp_adjacency;
+        for (const string& line : lines) {
+            vector<int> tokens = parse_int_line(line);
+            if (tokens.empty()) continue;
+            int source = tokens[0];
+            if (tokens.size() == 1) {
+                temp_adjacency[source];
+                continue;
+            }
+            if ((tokens.size() - 1) % 2 != 0) {
+                throw runtime_error("Adjacency list line must contain pairs (neighbor weight)");
+            }
+            for (size_t i = 1; i + 1 < tokens.size(); i += 2) {
+                int neighbor = tokens[i];
+                int weight = tokens[i+1];
+                temp_adjacency[source].emplace_back(neighbor, weight);
+            }
+        }
+
+        if (temp_adjacency.empty()) throw runtime_error("No adjacency data found");
+        int max_node = 0;
+        for (const auto& [u, vec] : temp_adjacency) {
+            max_node = max(max_node, u);
+            for (const auto& p : vec) max_node = max(max_node, p.first);
+        }
+        num_nodes = max_node + 1;
+
+        HeadSucc.clear(); Succ.clear(); WeightsSucc.clear(); HeadPred.clear(); Pred.clear(); WeightsPred.clear();
+        build_csr_from_adjacency_map(temp_adjacency);
+    }
+
+POST_PROCESS_LOAD:
+    if ((int)HeadSucc.size() != num_nodes + 1) {
+        HeadSucc.resize(num_nodes + 1, (int)Succ.size());
+    }
+
+    DemiDegreExt.assign(num_nodes, 0);
+    DemiDegreInt.assign(num_nodes, 0);
+
+    for (int i = 0; i < num_nodes; ++i) {
+        DemiDegreExt[i] = HeadSucc[i + 1] - HeadSucc[i];
+    }
+    for (int i = 0; i < (int)Succ.size(); ++i) {
+        if (Succ[i] >= 0 && Succ[i] < num_nodes) DemiDegreInt[Succ[i]]++;
     }
 
     compute_topo_order();
     create_pred();
-}
-
-void Graph::create_pred(){
-    HeadPred.resize(num_nodes+1);
-    HeadPred[0] = DemiDegreInt[0];
-    for(int i = 1; i < num_nodes+1; i++){
-        HeadPred[i] = HeadPred[i-1] + DemiDegreInt[i];
-    }
-
-    Pred.resize((int)Succ.size());
-    WeightsPred.resize((int)WeightsSucc.size());
-    for(int i = 0; i < num_nodes; i++){
-        for(int j = HeadSucc[i]; j < HeadSucc[i+1]; j++){
-            int y = Succ[j], w = WeightsSucc[j];
-            HeadPred[y]--;
-            Pred[HeadPred[y]] = i;
-            WeightsPred[HeadPred[y]] = w;
-        }
-    }
 }
 
 void Graph::load_matrix_format(ifstream& file) {
@@ -195,121 +309,89 @@ void Graph::load_matrix_format(ifstream& file) {
     HeadSucc.push_back(idx_Succ);
 }
 
-void Graph::build_csr_from_adjacency_list(
-    const vector<vector<pair<int, int>>>& adj_list) {
-    
+void Graph::build_csr_from_adjacency_map(const map<int, vector<pair<int, int>>>& adj_map) {
     HeadSucc.resize(num_nodes);
     int idx_Succ = 0;
-    
+
     for (int i = 0; i < num_nodes; ++i) {
-        HeadSucc[i] = idx_Succ;  
-        
-        for (const auto& [neighbor, weight] : adj_list[i]) {
-            if (neighbor < 0 || neighbor >= num_nodes) {
-                throw runtime_error("Indice de nœud invalide: " + to_string(neighbor));
+        HeadSucc[i] = idx_Succ;
+
+        auto it = adj_map.find(i);
+        if (it != adj_map.end()) {
+            for (const auto& neighbor_pair : it->second) {
+                Succ.push_back(neighbor_pair.first);
+                WeightsSucc.push_back(neighbor_pair.second);
+                idx_Succ++;
             }
-            Succ.push_back(neighbor);
-            WeightsSucc.push_back(weight);
-            idx_Succ++;
         }
     }
-    HeadSucc.push_back(idx_Succ); 
+    HeadSucc.push_back(idx_Succ);
 }
 
 void Graph::load_adjacency_list_format(ifstream& file) {
     string line;
-    int line_number = 0;
-    
-    if (!getline(file, line)) {
-        throw runtime_error("Fichier vide");
-    }
-    line_number++;
-    
-    istringstream first_line(line);
-    int declared_nodes;
-    if (!(first_line >> declared_nodes)) {
-        throw runtime_error("Ligne 1: doit contenir le nombre de nœuds");
-    }
-    
-    num_nodes = declared_nodes;
-    vector<vector<pair<int, int>>> adjacency_list(num_nodes);
-    
-    int current_node = 0;
-    while (getline(file, line) && current_node < num_nodes) {
-        line_number++;
-        
-        if (line.empty()) {
-            current_node++;
-            continue;
-        }
-        
+    map<int, vector<pair<int, int>>> temp_adjacency;
+
+    while (getline(file, line)) {
+        bool nonspace = false;
+        for (char c : line) if (!isspace((unsigned char)c)) { nonspace = true; break; }
+        if (!nonspace) continue;
+
         istringstream iss(line);
+        int source;
+        if (!(iss >> source)) continue;
+        vector<pair<int,int>> neigh;
         int neighbor, weight;
-        vector<pair<int, int>> neighbors;
-        
-        try {
-            while (iss >> neighbor >> weight) {
-                if (neighbor < 0 || neighbor >= num_nodes) {
-                    throw runtime_error("nœud invalide " + to_string(neighbor));
-                }
-                neighbors.emplace_back(neighbor, weight);
-            }
-        } catch (const exception& e) {
-            throw runtime_error("Ligne " + to_string(line_number) + ": " + e.what());
+        while (iss >> neighbor >> weight) {
+            neigh.emplace_back(neighbor, weight);
         }
-        
-        adjacency_list[current_node] = neighbors;
-        current_node++;
+        temp_adjacency[source] = move(neigh);
     }
-    
-    build_csr_from_adjacency_list(adjacency_list);
+
+    if (temp_adjacency.empty()) throw runtime_error("Fichier vide");
+
+    int max_node = 0;
+    for (const auto& [source, neighbors] : temp_adjacency) {
+        max_node = max(max_node, source);
+        for (const auto& [neighbor, weight] : neighbors) {
+            max_node = max(max_node, neighbor);
+        }
+    }
+
+    num_nodes = max_node + 1;
+    build_csr_from_adjacency_map(temp_adjacency);
 }
 
 void Graph::load_adjacency_list_format_explicit(ifstream& file) {
-    string line;
-    
-    if (!getline(file, line)) {
-        throw runtime_error("Fichier vide");
+    file >> num_nodes;
+
+    map<int, vector<pair<int, int>>> temp_adjacency;
+
+    int source, target, weight;
+    while (file >> source >> target >> weight) {
+        temp_adjacency[source].emplace_back(target, weight);
     }
-    
-    istringstream first_line(line);
-    int expected_nodes;
-    if (!(first_line >> expected_nodes)) {
-        throw runtime_error("Première ligne doit contenir le nombre de nœuds");
+
+    build_csr_from_adjacency_map(temp_adjacency);
+}
+
+void Graph::create_pred(){
+    HeadPred.resize(num_nodes+1);
+    HeadPred[0] = DemiDegreInt[0];
+    for(int i = 1; i < num_nodes+1; i++){
+        HeadPred[i] = HeadPred[i-1] + DemiDegreInt[i];
     }
-    
-    vector<vector<pair<int, int>>> adjacency_list(expected_nodes);
-    int line_number = 1; 
-    
-    for (int i = 0; i < expected_nodes && getline(file, line); ++i, ++line_number) {
-        if (line.empty() || line[0] == '#') {
-            i--; 
-            continue;
+
+    Pred.resize((int)Succ.size());
+    WeightsPred.resize((int)WeightsSucc.size());
+    for(int i = 0; i < num_nodes; i++){
+        for(int j = HeadSucc[i]; j < HeadSucc[i+1]; j++){
+            int y = Succ[j], w = WeightsSucc[j];
+            HeadPred[y]--;
+            Pred[HeadPred[y]] = i;
+            WeightsPred[HeadPred[y]] = w;
         }
-        
-        istringstream iss(line);
-        int neighbor, weight;
-        vector<pair<int, int>> neighbors;
-        
-        while (iss >> neighbor >> weight) {
-            if (neighbor < 0 || neighbor >= expected_nodes) {
-                throw runtime_error("Ligne " + to_string(line_number) + 
-                                  ": nœud invalide " + to_string(neighbor));
-            }
-            neighbors.emplace_back(neighbor, weight);
-        }
-        
-        adjacency_list[i] = neighbors;
     }
-    
-    if (adjacency_list.size() != expected_nodes) {
-        throw runtime_error("Nombre de lignes insuffisant. Attendu: " + 
-                          to_string(expected_nodes) + ", trouvé: " + 
-                          to_string(adjacency_list.size()));
-    }
-    
-    num_nodes = expected_nodes;
-    build_csr_from_adjacency_list(adjacency_list);
 }
 
 void Graph::save_to_file_adjacency_list(const string& filename) const {
